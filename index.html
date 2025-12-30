@@ -35,7 +35,10 @@ button{
   padding:10px;
 }
 
-#hearts{font-size:26px;color:red}
+#hearts{
+  font-size:26px;
+  color:red;
+}
 
 #gameArea{
   width:90%;
@@ -58,7 +61,6 @@ button{
   border-radius:10px;
   user-select:none;
 }
-
 .normal{width:60px;height:60px;background:#e74c3c;font-size:30px}
 .fast{width:50px;height:50px;background:#f1c40f;font-size:26px}
 .tank{width:80px;height:80px;background:#3498db;font-size:34px}
@@ -74,7 +76,7 @@ button{
 <!-- SİLAH -->
 <div id="weaponScreen" class="screen active">
   <h1>Silahını Seç</h1>
-  <button onclick="selectWeapon()">🔫 Tabanca</button>
+  <button onclick="selectWeapon()">🔫 Başla</button>
 </div>
 
 <!-- SEVİYE -->
@@ -98,9 +100,10 @@ button{
 
 <!-- BİTİŞ -->
 <div id="endScreen" class="screen">
-  <h1>Oyun Bitti</h1>
+  <h1>🎉 Ellerine Sağlık 🎉</h1>
   <p>Skor: <b id="finalScore"></b></p>
-  <button onclick="resetGame()">🔁 Tekrar</button>
+  <p>Rekor: <b id="finalHigh"></b></p>
+  <button onclick="resetGame()">🔁 Tekrar Oyna</button>
 </div>
 
 <script>
@@ -108,6 +111,11 @@ let enemyTime=3000;
 let score=0, combo=0, lives=3;
 let moveInterval, timeout;
 let highScore=localStorage.getItem("highScore")||0;
+
+const scoreEl=document.getElementById("score");
+const comboEl=document.getElementById("combo");
+const heartsEl=document.getElementById("hearts");
+const highScoreEl=document.getElementById("highScore");
 
 highScoreEl.innerText=highScore;
 
@@ -118,100 +126,4 @@ function show(id){
 
 function selectWeapon(){ show("levelScreen"); }
 
-function startGame(time){
-  enemyTime=time;
-  score=0; combo=0; lives=3;
-  updateHud();
-  show("gameScreen");
-  spawnEnemy();
-}
-
-const scoreEl=document.getElementById("score");
-const comboEl=document.getElementById("combo");
-const hearts=document.getElementById("hearts");
-const highScoreEl=document.getElementById("highScore");
-
-function updateHud(){
-  scoreEl.innerText=score;
-  comboEl.innerText=combo;
-  hearts.innerText="❤️".repeat(lives);
-  highScoreEl.innerText=highScore;
-}
-
-function spawnEnemy(){
-  if(lives<=0){endGame();return;}
-
-  const area=document.getElementById("gameArea");
-  area.innerHTML="";
-
-  // 🎲 Rastgele düşman tipi
-  const types=[
-    {cls:"normal",icon:"🧍",speed:150,base:10},
-    {cls:"fast",icon:"🏃",speed:90,base:15},
-    {cls:"tank",icon:"🛡️",speed:220,base:20}
-  ];
-  const t=types[Math.floor(Math.random()*types.length)];
-
-  const enemy=document.createElement("div");
-  enemy.className="enemy "+t.cls;
-  enemy.innerText=t.icon;
-
-  let x=Math.random()*(area.clientWidth-enemy.offsetWidth);
-  let y=Math.random()*(area.clientHeight-enemy.offsetHeight);
-  enemy.style.left=x+"px";
-  enemy.style.top=y+"px";
-
-  enemy.onclick=(e)=>{
-    document.getElementById("shotSound").currentTime=0;
-    document.getElementById("shotSound").play().catch(()=>{});
-
-    // 🎯 Headshot kontrolü
-    const rect=enemy.getBoundingClientRect();
-    const clickY=e.clientY-rect.top;
-    let bonus=0;
-    if(clickY<rect.height*0.35){ bonus+=15; }
-
-    combo++;
-    if(combo===8){ bonus+=20; }
-
-    score+=t.base+bonus;
-    updateHud();
-    clearInterval(moveInterval);
-    clearTimeout(timeout);
-    spawnEnemy();
-  };
-
-  area.appendChild(enemy);
-
-  moveInterval=setInterval(()=>{
-    x+=Math.random()*30-15;
-    y+=Math.random()*30-15;
-    x=Math.max(0,Math.min(area.clientWidth-enemy.offsetWidth,x));
-    y=Math.max(0,Math.min(area.clientHeight-enemy.offsetHeight,y));
-    enemy.style.left=x+"px";
-    enemy.style.top=y+"px";
-  },t.speed);
-
-  timeout=setTimeout(()=>{
-    lives--;
-    combo=0;
-    updateHud();
-    clearInterval(moveInterval);
-    spawnEnemy();
-  },enemyTime);
-}
-
-function endGame(){
-  if(score>highScore){
-    highScore=score;
-    localStorage.setItem("highScore",highScore);
-  }
-  finalScore.innerText=score;
-  show("endScreen");
-}
-
-function resetGame(){ show("weaponScreen"); }
-</script>
-
-</body>
-</html>
+functio
