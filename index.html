@@ -1,0 +1,83 @@
+index.html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nişancı Oyunu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: #fff;
+      text-align: center;
+    }
+    .screen { display: none; margin-top: 50px; }
+    .active { display: block; }
+    button {
+      padding: 15px 25px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- SİLAH SEÇİM -->
+<div id="weaponScreen" class="screen active">
+  <h1>Silahını Seç</h1>
+  <button onclick="selectWeapon('Tabanca')">🔫 Tabanca</button>
+  <button onclick="selectWeapon('Tüfek')">🔥 Tüfek</button>
+  <button onclick="selectWeapon('Sniper')">🎯 Sniper</button>
+  <p id="weaponMsg"></p>
+</div>
+
+<!-- SEVİYE SEÇİM -->
+<div id="levelScreen" class="screen">
+  <h1>Seviye Seç</h1>
+  <button onclick="selectLevel('easy')">🟢 Kolay</button>
+  <button onclick="selectLevel('medium')">🟡 Orta</button>
+  <button onclick="selectLevel('hard')">🔴 Zor</button>
+</div>
+
+<!-- OYUN -->
+<div id="gameScreen" class="screen">
+  <h1>Oyun Başladı</h1>
+  <p id="info"></p>
+</div>
+
+<script>
+let weapon = "";
+let enemyTime = 0;
+
+function selectWeapon(w) {
+  weapon = w;
+  document.getElementById("weaponMsg").innerText =
+    "✅ Güzel seçim: " + w;
+
+  setTimeout(() => {
+    showScreen("levelScreen");
+  }, 1000);
+}
+
+function selectLevel(level) {
+  if (level === "easy") enemyTime = 5000;
+  if (level === "medium") enemyTime = 3000;
+  if (level === "hard") enemyTime = 2000;
+
+  document.getElementById("info").innerText =
+    "Silah: " + weapon +
+    " | Adam süresi: " + (enemyTime / 1000) + " sn";
+
+  showScreen("gameScreen");
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen")
+    .forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+</script>
+
+</body>
+</html>
