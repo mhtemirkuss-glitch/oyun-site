@@ -2,7 +2,9 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nişancı Oyunu</title>
+
 <style>
 body{
   margin:0;
@@ -10,19 +12,19 @@ body{
   background:radial-gradient(circle at top,#333,#000);
   color:#fff;
   text-align:center;
+  touch-action:manipulation;
 }
-.screen{display:none;padding:20px}
+.screen{display:none;padding:15px}
 .active{display:block}
 
 button{
-  padding:14px 24px;
+  padding:16px 26px;
   margin:10px;
   font-size:18px;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   background:linear-gradient(145deg,#ff9800,#ff5722);
   color:#fff;
-  cursor:pointer;
 }
 
 #hud{
@@ -30,29 +32,32 @@ button{
   justify-content:space-between;
   align-items:center;
   max-width:900px;
-  margin:0 auto;
+  margin:auto;
   padding:10px;
+  flex-wrap:wrap;
+  gap:8px;
 }
 
-#hearts{font-size:26px;color:red}
+#hearts{font-size:24px;color:red}
 
 #gameArea{
-  width:90%;
+  width:95%;
   max-width:900px;
-  height:420px;
+  height:60vh;
+  min-height:360px;
   background:#111;
-  margin:15px auto;
-  border-radius:12px;
+  margin:10px auto;
+  border-radius:14px;
   position:relative;
   overflow:hidden;
 }
 
+/* ENEMY */
 .enemy{
   position:absolute;
   display:flex;
   align-items:center;
   justify-content:center;
-  cursor:pointer;
   border-radius:10px;
   user-select:none;
 }
@@ -60,16 +65,25 @@ button{
 .fast{width:50px;height:50px;background:#f1c40f;font-size:26px}
 .tank{width:80px;height:80px;background:#3498db;font-size:34px}
 .boss{width:110px;height:110px;background:#8e44ad;font-size:40px}
+
+/* MERMİ */
+.bullet{
+  position:absolute;
+  height:4px;
+  background:yellow;
+  transform-origin:left center;
+  z-index:10;
+}
 </style>
 </head>
 
 <body>
 
-<audio id="shotSound" preload="auto">
+<audio id="shotSound">
   <source src="https://actions.google.com/sounds/v1/impacts/crash.ogg">
 </audio>
 
-<!-- SİLAH SEÇİM -->
+<!-- SİLAH -->
 <div id="weaponScreen" class="screen active">
   <h1>Silahını Seç</h1>
   <button onclick="chooseWeapon('tabanca')">🔫 Tabanca</button>
@@ -77,7 +91,7 @@ button{
   <button onclick="chooseWeapon('sniper')">🎯 Sniper</button>
 </div>
 
-<!-- MOD SEÇİM -->
+<!-- SEVİYE -->
 <div id="levelScreen" class="screen">
   <h1>Seviye Seç</h1>
   <button onclick="startGame(3000)">🟢 Kolay</button>
@@ -91,7 +105,6 @@ button{
     <div>Silah: <b id="weaponText"></b></div>
     <div>Skor: <span id="score">0</span></div>
     <div>Seri: <span id="combo">0</span></div>
-    <div>Rekor: <span id="highScore">0</span></div>
     <div id="hearts">❤️❤️❤️</div>
   </div>
   <div id="gameArea"></div>
@@ -101,25 +114,19 @@ button{
 <div id="endScreen" class="screen">
   <h1>🎉 Ellerine Sağlık 🎉</h1>
   <p>Skor: <b id="finalScore"></b></p>
-  <p>Rekor: <b id="finalHigh"></b></p>
-  <button onclick="resetGame()">🔁 Tekrar Oyna</button>
+  <button onclick="resetGame()">🔁 Tekrar</button>
 </div>
 
 <script>
-let weapon="";
-let enemyTime=3000;
-let score=0, combo=0, lives=3;
-let killed=0, bossHp=0;
-let moveInterval, timeout;
-let highScore=localStorage.getItem("highScore")||0;
+let weapon="", enemyTime=3000;
+let score=0, combo=0, lives=3, killed=0;
+let moveInterval, timeout, bossHp=0;
 
+const area=document.getElementById("gameArea");
 const scoreEl=document.getElementById("score");
 const comboEl=document.getElementById("combo");
 const heartsEl=document.getElementById("hearts");
-const highScoreEl=document.getElementById("highScore");
 const weaponText=document.getElementById("weaponText");
-
-highScoreEl.innerText=highScore;
 
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -144,23 +151,34 @@ function updateHud(){
   scoreEl.innerText=score;
   comboEl.innerText=combo;
   heartsEl.innerText="❤️".repeat(lives);
-  highScoreEl.innerText=highScore;
 }
 
 function weaponDamage(){
-  if(weapon==="sniper") return 2;
-  return 1;
+  return weapon==="sniper"?2:1;
+}
+
+function shootBullet(fromX, fromY, toX, toY){
+  const bullet=document.createElement("div");
+  bullet.className="bullet";
+  const dx=toX-fromX;
+  const dy=toY-fromY;
+  const dist=Math.hypot(dx,dy);
+  const angle=Math.atan2(dy,dx)*180/Math.PI;
+  bullet.style.width=dist+"px";
+  bullet.style.left=fromX+"px";
+  bullet.style.top=fromY+"px";
+  bullet.style.transform=`rotate(${angle}deg)`;
+  area.appendChild(bullet);
+  setTimeout(()=>bullet.remove(),80);
 }
 
 function spawnEnemy(){
   if(lives<=0){ endGame(); return; }
-
-  const area=document.getElementById("gameArea");
   area.innerHTML="";
 
   let enemy=document.createElement("div");
   let speed=150, base=10;
-  let isBoss = (killed>0 && killed%10===0);
+  let isBoss=(killed>0 && killed%10===0);
 
   if(isBoss){
     enemy.className="enemy boss";
@@ -186,16 +204,20 @@ function spawnEnemy(){
   enemy.style.left=x+"px";
   enemy.style.top=y+"px";
 
-  enemy.onclick=(e)=>{
+  enemy.addEventListener("pointerdown",(e)=>{
+    const rect=enemy.getBoundingClientRect();
+    const aRect=area.getBoundingClientRect();
+    const ex=rect.left-aRect.left+rect.width/2;
+    const ey=rect.top-aRect.top+rect.height/2;
+
+    shootBullet(area.clientWidth/2, area.clientHeight, ex, ey);
+
     document.getElementById("shotSound").currentTime=0;
     document.getElementById("shotSound").play().catch(()=>{});
 
     let bonus=0;
-    const rect=enemy.getBoundingClientRect();
-    if(e.clientY-rect.top < rect.height*0.35) bonus+=15;
-
-    combo++;
-    if(combo===8) bonus+=20;
+    if(e.clientY-rect.top<rect.height*0.35) bonus+=15;
+    combo++; if(combo===8) bonus+=20;
 
     if(isBoss){
       bossHp-=weaponDamage();
@@ -208,7 +230,7 @@ function spawnEnemy(){
     clearInterval(moveInterval);
     clearTimeout(timeout);
     spawnEnemy();
-  };
+  });
 
   area.appendChild(enemy);
 
@@ -222,8 +244,7 @@ function spawnEnemy(){
   },speed);
 
   timeout=setTimeout(()=>{
-    lives--;
-    combo=0;
+    lives--; combo=0;
     updateHud();
     clearInterval(moveInterval);
     spawnEnemy();
@@ -231,12 +252,7 @@ function spawnEnemy(){
 }
 
 function endGame(){
-  if(score>highScore){
-    highScore=score;
-    localStorage.setItem("highScore",highScore);
-  }
-  finalScore.innerText=score;
-  finalHigh.innerText=highScore;
+  document.getElementById("finalScore").innerText=score;
   show("endScreen");
 }
 
