@@ -1,69 +1,7 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<title>Test Akış</title>
-<style>
-body{font-family:Arial;background:#111;color:#fff;text-align:center}
-.screen{display:none;padding:40px}
-.active{display:block}
-button{padding:15px 25px;font-size:18px;margin:10px}
-</style>
-</head>
-
-<body>
-
-<!-- 1 -->
-<div id="nameScreen" class="screen active">
-  <h1>İsim Gir</h1>
-  <input id="nameInput" placeholder="İsmin">
-  <br><br>
-  <button onclick="goWeapon()">Devam</button>
-</div>
-
-<!-- 2 -->
-<div id="weaponScreen" class="screen">
-  <h1>Silah Seç</h1>
-  <button onclick="goLevel('Tabanca')">🔫 Tabanca</button>
-  <button onclick="goLevel('Tüfek')">🔥 Tüfek</button>
-</div>
-
-<!-- 3 -->
-<div id="levelScreen" class="screen">
-  <h1>Seviye Seç</h1>
-  <button onclick="startGame('Kolay')">🟢 Kolay</button>
-  <button onclick="startGame('Zor')">🔴 Zor</button>
-</div>
-
-<!-- 4 -->
-<div id="gameScreen" class="screen">
-  <h1>OYUN BAŞLADI</h1>
-  <p id="info"></p>
-</div>
-
-<script>
-function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-function goWeapon(){
-  const n=document.getElementById('nameInput').value.trim();
-  if(!n){alert('İsim gir');return;}
-  show('weaponScreen');
-}
-
-function goLevel(w){
-  window.weapon=w;
-  show('levelScreen');
-}
-
-function startGame(l){
-  document.getElementById('info').innerText =
-    'Silah: '+window.weapon+' | Seviye: '+l;
-  show('gameScreen');
-}
-</script>
-
+<html>
+<body style="background:black;color:white;text-align:center">
+<h1>JS TEST</h1>
+<button onclick="alert('JS ÇALIŞIYOR')">TIKLA</button>
 </body>
 </html>
