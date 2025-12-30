@@ -2,277 +2,66 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nişancı Oyunu</title>
-
+<title>Test Akış</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#111;
-  color:#fff;
-  text-align:center;
-}
-.screen{display:none;padding:15px}
+body{font-family:Arial;background:#111;color:#fff;text-align:center}
+.screen{display:none;padding:40px}
 .active{display:block}
-
-button{
-  padding:14px 22px;
-  margin:8px;
-  font-size:16px;
-  border:none;
-  border-radius:12px;
-  background:#ff5722;
-  color:#fff;
-}
-
-input{
-  padding:10px;
-  font-size:16px;
-  border-radius:8px;
-  border:none;
-}
-
-#hud{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  max-width:900px;
-  margin:auto;
-  padding:10px;
-  gap:10px;
-}
-
-#hearts{color:red;font-size:22px}
-
-#gameArea{
-  width:95%;
-  max-width:900px;
-  height:60vh;
-  min-height:360px;
-  background:#000;
-  margin:10px auto;
-  position:relative;
-  overflow:hidden;
-  border-radius:12px;
-}
-
-.enemy{
-  position:absolute;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  user-select:none;
-}
-.normal{width:60px;height:60px;background:#e74c3c}
-.fast{width:50px;height:50px;background:#f1c40f}
-.tank{width:80px;height:80px;background:#3498db}
-.boss{width:110px;height:110px;background:#8e44ad;font-size:32px}
-
-.bullet{
-  position:absolute;
-  height:4px;
-  background:yellow;
-  transform-origin:left center;
-}
-
-.scorebox{
-  max-width:300px;
-  margin:10px auto;
-  background:#222;
-  border-radius:10px;
-  padding:10px;
-}
+button{padding:15px 25px;font-size:18px;margin:10px}
 </style>
 </head>
 
 <body>
 
-<!-- İSİM -->
+<!-- 1 -->
 <div id="nameScreen" class="screen active">
-  <h1>İsmini Gir</h1>
-  <input id="playerName" placeholder="İsmin">
+  <h1>İsim Gir</h1>
+  <input id="nameInput" placeholder="İsmin">
   <br><br>
-  <button onclick="saveName()">Devam</button>
+  <button onclick="goWeapon()">Devam</button>
 </div>
 
-<!-- SİLAH -->
+<!-- 2 -->
 <div id="weaponScreen" class="screen">
-  <h1>Silahını Seç</h1>
-  <button onclick="chooseWeapon('tabanca')">🔫 Tabanca</button>
-  <button onclick="chooseWeapon('tufek')">🔥 Tüfek</button>
-  <button onclick="chooseWeapon('sniper')">🎯 Sniper</button>
+  <h1>Silah Seç</h1>
+  <button onclick="goLevel('Tabanca')">🔫 Tabanca</button>
+  <button onclick="goLevel('Tüfek')">🔥 Tüfek</button>
 </div>
 
-<!-- SEVİYE -->
+<!-- 3 -->
 <div id="levelScreen" class="screen">
   <h1>Seviye Seç</h1>
-  <button onclick="startGame(3000)">🟢 Kolay</button>
-  <button onclick="startGame(2000)">🟡 Orta</button>
-  <button onclick="startGame(1000)">🔴 Zor</button>
+  <button onclick="startGame('Kolay')">🟢 Kolay</button>
+  <button onclick="startGame('Zor')">🔴 Zor</button>
 </div>
 
-<!-- OYUN -->
+<!-- 4 -->
 <div id="gameScreen" class="screen">
-  <div id="hud">
-    <div>👤 <span id="playerText"></span></div>
-    <div>🔫 <span id="weaponText"></span></div>
-    <div>Skor: <span id="score">0</span></div>
-    <div id="hearts">❤️❤️❤️</div>
-  </div>
-  <div id="gameArea"></div>
+  <h1>OYUN BAŞLADI</h1>
+  <p id="info"></p>
 </div>
-
-<!-- BİTİŞ -->
-<div id="endScreen" class="screen">
-  <h1>🎉 Ellerine Sağlık 🎉</h1>
-  <p>Skorun: <b id="finalScore"></b></p>
-
-  <h3>🌍 Online Skor Tablosu</h3>
-  <ul id="onlineScores" class="scorebox"></ul>
-
-  <button onclick="location.reload()">Tekrar</button>
-</div>
-
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <script>
-/* 🔴 BURAYI KENDİ FIREBASE BİLGİLERİNLE DOLDUR */
-const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "PROJE.firebaseapp.com",
-  databaseURL: "https://PROJE-default-rtdb.firebaseio.com",
-  projectId: "PROJE"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-/* OYUN */
-let name="", weapon="", enemyTime=3000;
-let score=0, lives=3, killed=0, bossHp=0;
-let moveInterval, timeout;
-
-const area=document.getElementById("gameArea");
-
 function show(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-function saveName(){
-  name=document.getElementById("playerName").value.trim();
-  if(!name){alert("İsim gir");return;}
-  document.getElementById("playerText").innerText=name;
-  show("weaponScreen");
+function goWeapon(){
+  const n=document.getElementById('nameInput').value.trim();
+  if(!n){alert('İsim gir');return;}
+  show('weaponScreen');
 }
 
-function chooseWeapon(w){
-  weapon=w;
-  document.getElementById("weaponText").innerText=w.toUpperCase();
-  show("levelScreen");
+function goLevel(w){
+  window.weapon=w;
+  show('levelScreen');
 }
 
-function startGame(t){
-  enemyTime=t;
-  score=0; lives=3; killed=0;
-  updateHud();
-  show("gameScreen");
-  spawnEnemy();
-}
-
-function updateHud(){
-  document.getElementById("score").innerText=score;
-  document.getElementById("hearts").innerText="❤️".repeat(lives);
-}
-
-function weaponDamage(){ return weapon==="sniper"?2:1; }
-
-function shootBullet(fx,fy,tx,ty){
-  const b=document.createElement("div");
-  b.className="bullet";
-  const dx=tx-fx, dy=ty-fy;
-  const d=Math.hypot(dx,dy);
-  b.style.width=d+"px";
-  b.style.left=fx+"px";
-  b.style.top=fy+"px";
-  b.style.transform=`rotate(${Math.atan2(dy,dx)*180/Math.PI}deg)`;
-  area.appendChild(b);
-  setTimeout(()=>b.remove(),80);
-}
-
-function spawnEnemy(){
-  if(lives<=0){ endGame(); return; }
-  area.innerHTML="";
-
-  let e=document.createElement("div");
-  let base=10;
-  let boss=(killed>0 && killed%10===0);
-
-  if(boss){
-    e.className="enemy boss";
-    e.innerText="👑";
-    bossHp=3;
-    base=50;
-  }else{
-    e.className="enemy normal";
-    e.innerText="🧍";
-  }
-
-  let x=Math.random()*(area.clientWidth-80);
-  let y=Math.random()*(area.clientHeight-80);
-  e.style.left=x+"px";
-  e.style.top=y+"px";
-
-  e.onclick=(ev)=>{
-    const r=e.getBoundingClientRect();
-    const ar=area.getBoundingClientRect();
-    shootBullet(area.clientWidth/2,area.clientHeight,
-      r.left-ar.left+r.width/2,r.top-ar.top+r.height/2);
-
-    if(boss){
-      bossHp-=weaponDamage();
-      if(bossHp>0) return;
-    }
-
-    score+=base;
-    killed++;
-    updateHud();
-    clearTimeout(timeout);
-    spawnEnemy();
-  };
-
-  area.appendChild(e);
-
-  timeout=setTimeout(()=>{
-    lives--;
-    updateHud();
-    spawnEnemy();
-  },enemyTime);
-}
-
-function endGame(){
-  document.getElementById("finalScore").innerText=score;
-  saveOnline();
-  show("endScreen");
-}
-
-function saveOnline(){
-  db.ref("scores").push({name,score});
-  db.ref("scores").orderByChild("score").limitToLast(10)
-  .on("value",snap=>{
-    const list=document.getElementById("onlineScores");
-    list.innerHTML="";
-    const arr=[];
-    snap.forEach(s=>arr.push(s.val()));
-    arr.reverse().forEach(s=>{
-      const li=document.createElement("li");
-      li.innerText=`${s.name} - ${s.score}`;
-      list.appendChild(li);
-    });
-  });
+function startGame(l){
+  document.getElementById('info').innerText =
+    'Silah: '+window.weapon+' | Seviye: '+l;
+  show('gameScreen');
 }
 </script>
 
