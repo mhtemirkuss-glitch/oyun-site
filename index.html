@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Nişancı Oyunu</title>
-
 <style>
 body{
   margin:0;
@@ -70,15 +69,15 @@ button{
   <source src="https://actions.google.com/sounds/v1/impacts/crash.ogg">
 </audio>
 
-<!-- SİLAH -->
+<!-- SİLAH SEÇİM -->
 <div id="weaponScreen" class="screen active">
   <h1>Silahını Seç</h1>
-  <button onclick="selectWeapon('tabanca')">🔫 Tabanca</button>
-  <button onclick="selectWeapon('tufek')">🔥 Tüfek</button>
-  <button onclick="selectWeapon('sniper')">🎯 Sniper</button>
+  <button onclick="chooseWeapon('tabanca')">🔫 Tabanca</button>
+  <button onclick="chooseWeapon('tufek')">🔥 Tüfek</button>
+  <button onclick="chooseWeapon('sniper')">🎯 Sniper</button>
 </div>
 
-<!-- SEVİYE -->
+<!-- MOD SEÇİM -->
 <div id="levelScreen" class="screen">
   <h1>Seviye Seç</h1>
   <button onclick="startGame(3000)">🟢 Kolay</button>
@@ -89,9 +88,9 @@ button{
 <!-- OYUN -->
 <div id="gameScreen" class="screen">
   <div id="hud">
+    <div>Silah: <b id="weaponText"></b></div>
     <div>Skor: <span id="score">0</span></div>
     <div>Seri: <span id="combo">0</span></div>
-    <div>Silah: <span id="weaponText"></span></div>
     <div>Rekor: <span id="highScore">0</span></div>
     <div id="hearts">❤️❤️❤️</div>
   </div>
@@ -107,13 +106,12 @@ button{
 </div>
 
 <script>
+let weapon="";
 let enemyTime=3000;
 let score=0, combo=0, lives=3;
+let killed=0, bossHp=0;
 let moveInterval, timeout;
 let highScore=localStorage.getItem("highScore")||0;
-let weapon="tabanca";
-let killed=0;
-let bossHp=0;
 
 const scoreEl=document.getElementById("score");
 const comboEl=document.getElementById("combo");
@@ -124,11 +122,11 @@ const weaponText=document.getElementById("weaponText");
 highScoreEl.innerText=highScore;
 
 function show(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-function selectWeapon(w){
+function chooseWeapon(w){
   weapon=w;
   weaponText.innerText=w.toUpperCase();
   show("levelScreen");
@@ -150,8 +148,6 @@ function updateHud(){
 }
 
 function weaponDamage(){
-  if(weapon==="tabanca") return 1;
-  if(weapon==="tufek") return 1;
   if(weapon==="sniper") return 2;
   return 1;
 }
@@ -162,9 +158,9 @@ function spawnEnemy(){
   const area=document.getElementById("gameArea");
   area.innerHTML="";
 
-  let isBoss = (killed>0 && killed%10===0);
   let enemy=document.createElement("div");
   let speed=150, base=10;
+  let isBoss = (killed>0 && killed%10===0);
 
   if(isBoss){
     enemy.className="enemy boss";
@@ -239,8 +235,8 @@ function endGame(){
     highScore=score;
     localStorage.setItem("highScore",highScore);
   }
-  document.getElementById("finalScore").innerText=score;
-  document.getElementById("finalHigh").innerText=highScore;
+  finalScore.innerText=score;
+  finalHigh.innerText=highScore;
   show("endScreen");
 }
 
