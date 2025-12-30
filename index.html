@@ -52,7 +52,7 @@ button{
   overflow:hidden;
 }
 
-/* ENEMY */
+/* DÜŞMANLAR */
 .enemy{
   position:absolute;
   display:flex;
@@ -74,14 +74,22 @@ button{
   transform-origin:left center;
   z-index:10;
 }
+
+.scoreboard{
+  max-width:300px;
+  margin:10px auto;
+  background:#111;
+  border-radius:10px;
+  padding:10px;
+}
+.scoreboard li{
+  list-style:none;
+  padding:6px;
+}
 </style>
 </head>
 
 <body>
-
-<audio id="shotSound">
-  <source src="https://actions.google.com/sounds/v1/impacts/crash.ogg">
-</audio>
 
 <!-- SİLAH -->
 <div id="weaponScreen" class="screen active">
@@ -113,7 +121,11 @@ button{
 <!-- BİTİŞ -->
 <div id="endScreen" class="screen">
   <h1>🎉 Ellerine Sağlık 🎉</h1>
-  <p>Skor: <b id="finalScore"></b></p>
+  <p>Skorun: <b id="finalScore"></b></p>
+
+  <h3>🏆 En İyi 3</h3>
+  <ul id="topScores" class="scoreboard"></ul>
+
   <button onclick="resetGame()">🔁 Tekrar</button>
 </div>
 
@@ -127,6 +139,7 @@ const scoreEl=document.getElementById("score");
 const comboEl=document.getElementById("combo");
 const heartsEl=document.getElementById("hearts");
 const weaponText=document.getElementById("weaponText");
+const topScoresEl=document.getElementById("topScores");
 
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -153,15 +166,12 @@ function updateHud(){
   heartsEl.innerText="❤️".repeat(lives);
 }
 
-function weaponDamage(){
-  return weapon==="sniper"?2:1;
-}
+function weaponDamage(){ return weapon==="sniper"?2:1; }
 
 function shootBullet(fromX, fromY, toX, toY){
   const bullet=document.createElement("div");
   bullet.className="bullet";
-  const dx=toX-fromX;
-  const dy=toY-fromY;
+  const dx=toX-fromX, dy=toY-fromY;
   const dist=Math.hypot(dx,dy);
   const angle=Math.atan2(dy,dx)*180/Math.PI;
   bullet.style.width=dist+"px";
@@ -207,13 +217,9 @@ function spawnEnemy(){
   enemy.addEventListener("pointerdown",(e)=>{
     const rect=enemy.getBoundingClientRect();
     const aRect=area.getBoundingClientRect();
-    const ex=rect.left-aRect.left+rect.width/2;
-    const ey=rect.top-aRect.top+rect.height/2;
-
-    shootBullet(area.clientWidth/2, area.clientHeight, ex, ey);
-
-    document.getElementById("shotSound").currentTime=0;
-    document.getElementById("shotSound").play().catch(()=>{});
+    shootBullet(area.clientWidth/2, area.clientHeight,
+      rect.left-aRect.left+rect.width/2,
+      rect.top-aRect.top+rect.height/2);
 
     let bonus=0;
     if(e.clientY-rect.top<rect.height*0.35) bonus+=15;
@@ -252,11 +258,33 @@ function spawnEnemy(){
 }
 
 function endGame(){
+  saveScore(score);
   document.getElementById("finalScore").innerText=score;
+  renderTopScores();
   show("endScreen");
 }
 
 function resetGame(){ show("weaponScreen"); }
+
+/* 🏆 SKOR TABLOSU */
+function saveScore(newScore){
+  let scores=JSON.parse(localStorage.getItem("topScores")||"[]");
+  scores.push(newScore);
+  scores.sort((a,b)=>b-a);
+  scores=scores.slice(0,3);
+  localStorage.setItem("topScores",JSON.stringify(scores));
+}
+
+function renderTopScores(){
+  let scores=JSON.parse(localStorage.getItem("topScores")||"[]");
+  topScoresEl.innerHTML="";
+  const medals=["🥇","🥈","🥉"];
+  scores.forEach((s,i)=>{
+    const li=document.createElement("li");
+    li.innerText=`${medals[i]} ${s}`;
+    topScoresEl.appendChild(li);
+  });
+}
 </script>
 
 </body>
