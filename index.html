@@ -3,674 +3,666 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>EMİR BABA • Sohbet + Bilgi</title>
+  <title>Emir AI</title>
   <style>
     :root{
-      --bg:#0f1220; --panel:#151a2e; --panel2:#101428;
-      --text:#e9ecff; --muted:#a8b0d6; --me:#2e6bff; --bot:#6d46ff;
-      --border:rgba(255,255,255,.09);
-      --radius:18px;
+      --bg:#343541; --panel:#40414f; --panel2:#202123;
+      --text:#ececf1; --muted:#c5c5d2; --border:rgba(255,255,255,.12);
+      --green:#19c37d; --radius:14px;
+      --mono: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      background:linear-gradient(180deg,#0b0e19,#0f1220);
-      color:var(--text);
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .top{
+      position:sticky;top:0;z-index:10;background:var(--panel2);
+      border-bottom:1px solid var(--border); padding:10px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:10px
     }
-    .wrap{max-width:980px;margin:0 auto; padding:18px;}
-    .topbar{
-      display:flex; gap:12px; align-items:center; justify-content:space-between;
-      padding:14px 14px; border:1px solid var(--border); border-radius:22px;
-      background:rgba(21,26,46,.75); backdrop-filter: blur(8px);
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--green),#7aa7ff);
+      display:grid;place-items:center;color:#07110a;font-weight:900}
+    .brand b{display:block;font-size:14px}
+    .brand small{display:block;color:var(--muted);font-size:12px}
+    .tools{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{
+      border:1px solid var(--border); background:rgba(255,255,255,.06); color:var(--text);
+      border-radius:12px; padding:8px 10px; font-weight:800; cursor:pointer; font-size:13px
     }
-    .brand{display:flex; gap:12px; align-items:center;}
-    .logo{
-      width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#33d3ff,#6d46ff);
-      display:grid;place-items:center;font-weight:800;
-      color:#071023; box-shadow:0 8px 24px rgba(0,0,0,.35);
+    .btn:hover{background:rgba(255,255,255,.10)}
+    .btn.green{border-color:rgba(25,195,125,.55); background:rgba(25,195,125,.12)}
+    .wrap{max-width:980px;margin:0 auto}
+    .chat{padding:16px 14px 130px; min-height:calc(100vh - 56px)}
+    .row{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .row:last-child{border-bottom:none}
+    .avatar{
+      width:34px;height:34px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;font-weight:900;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)
     }
-    .title{line-height:1.1}
-    .title b{display:block;font-size:16px}
-    .title small{color:var(--muted)}
-    .tools{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
-    .chip{
-      border:1px solid var(--border); background:rgba(16,20,40,.6);
-      color:var(--text); padding:8px 10px; border-radius:999px;
-      font-size:13px; cursor:pointer;
+    .avatar.me{background:rgba(122,167,255,.16);border-color:rgba(122,167,255,.35)}
+    .avatar.bot{background:rgba(109,70,255,.14);border-color:rgba(109,70,255,.35)}
+    .bubble{flex:1;white-space:pre-wrap;word-break:break-word;line-height:1.55;font-size:15px}
+    .meta{margin-top:6px;font-size:12px;color:rgba(197,197,210,.85);font-family:var(--mono)}
+    .composer{
+      position:fixed;left:0;right:0;bottom:0;
+      background:linear-gradient(180deg, rgba(52,53,65,0), rgba(52,53,65,.95) 35%, rgba(52,53,65,1));
+      padding:14px;
     }
-    .chip:hover{border-color:rgba(255,255,255,.18)}
-    .chip.primary{background:rgba(46,107,255,.18); border-color:rgba(46,107,255,.45)}
-    .chip.danger{background:rgba(255,70,70,.12); border-color:rgba(255,70,70,.35)}
-    .row{display:grid; grid-template-columns: 1fr 320px; gap:14px; margin-top:14px;}
-    @media (max-width:900px){ .row{grid-template-columns:1fr} }
-    .card{
-      border:1px solid var(--border); border-radius:22px;
-      background:rgba(21,26,46,.55); backdrop-filter: blur(8px);
-      overflow:hidden;
-    }
-    .chat{
-      display:flex; flex-direction:column; height:72vh; min-height:520px;
-    }
-    .messages{padding:14px; overflow:auto; flex:1; background:rgba(16,20,40,.35)}
-    .msg{max-width:78%; padding:12px 12px; border-radius:18px; margin:10px 0; border:1px solid var(--border)}
-    .msg.bot{background:linear-gradient(180deg,rgba(109,70,255,.20),rgba(109,70,255,.12));}
-    .msg.me{background:linear-gradient(180deg,rgba(46,107,255,.22),rgba(46,107,255,.12)); margin-left:auto}
-    .meta{display:flex; gap:8px; align-items:center; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:6px}
-    .inputbar{
-      padding:12px; display:flex; gap:10px; border-top:1px solid var(--border);
-      background:rgba(21,26,46,.75);
+    .composer .inner{
+      max-width:980px;margin:0 auto;background:var(--panel);
+      border:1px solid var(--border);border-radius:16px;display:flex;gap:10px;
+      padding:10px;align-items:flex-end;box-shadow:0 18px 40px rgba(0,0,0,.35)
     }
     textarea{
-      flex:1; resize:none; height:54px; padding:12px 12px; border-radius:16px;
-      border:1px solid var(--border); background:rgba(16,20,40,.6); color:var(--text);
-      outline:none; font-size:15px;
+      flex:1;background:transparent;color:var(--text);border:none;outline:none;
+      resize:none;min-height:44px;max-height:160px;font-size:15px;line-height:1.45
     }
-    button{
-      border:none; border-radius:16px; padding:0 16px; font-weight:700; cursor:pointer;
-      background:linear-gradient(135deg,#2e6bff,#6d46ff); color:#fff;
-      box-shadow:0 10px 24px rgba(0,0,0,.25);
+    .send{
+      background:var(--green);color:#052016;border:none;border-radius:12px;
+      padding:10px 14px;font-weight:900;cursor:pointer;min-width:90px
     }
-    button:active{transform:translateY(1px)}
-    .side{padding:14px}
-    .side h3{margin:6px 0 10px 0}
-    .side p,.side li{color:var(--muted); font-size:13px; line-height:1.35}
-    .quick{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
-    .quick button{
-      background:rgba(255,255,255,.07); border:1px solid var(--border); color:var(--text);
-      box-shadow:none; padding:10px 10px; border-radius:14px; font-weight:600; font-size:13px;
-    }
-    .quick button:hover{border-color:rgba(255,255,255,.18)}
-    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:12px; color:#cfe1ff}
-    .sep{height:1px; background:var(--border); margin:12px 0}
-    .badge{display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid var(--border); color:var(--muted); font-size:12px}
+    .send:disabled{opacity:.55;cursor:not-allowed}
+    .hintbar{max-width:980px;margin:10px auto 0;display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+    .chip{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);border-radius:999px;padding:7px 10px;cursor:pointer;user-select:none}
+    .chip:hover{background:rgba(255,255,255,.10)}
+    .typing{display:inline-flex;gap:6px;align-items:center;color:rgba(236,236,241,.9);font-size:14px}
+    .dot{width:6px;height:6px;border-radius:999px;background:rgba(236,236,241,.75);animation:bounce 1s infinite}
+    .dot:nth-child(2){animation-delay:.12s}
+    .dot:nth-child(3){animation-delay:.24s}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.6}40%{transform:translateY(-5px);opacity:1}}
+    .kbd{font-family:var(--mono);padding:1px 7px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.22)}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo">EB</div>
-        <div class="title">
-          <b>EMİR BABA • Sohbet + Bilgi</b>
-          <small>Tek dosya • Offline • İsim hatırlar • 7. sınıf • Fen/Tarih/Mat + daha fazlası</small>
-        </div>
-      </div>
-      <div class="tools">
-        <span class="badge" id="nameBadge">İsim: —</span>
-        <span class="chip primary" id="helpBtn">Yardım</span>
-        <span class="chip" id="topicsBtn">7. Sınıf Konular</span>
-        <span class="chip" id="resetBtn">Sıfırla</span>
+  <div class="top">
+    <div class="brand">
+      <div class="logo">AI</div>
+      <div>
+        <b id="brandTitle">Emir AI</b>
+        <small id="brandSub">7. sınıf + günlük hayat • offline (API’siz)</small>
       </div>
     </div>
+    <div class="tools">
+      <button class="btn" id="btnName">İsim</button>
+      <button class="btn green" id="btnHelp">Komutlar</button>
+      <button class="btn" id="btnTopics">7. Sınıf</button>
+      <button class="btn" id="btnOtt">Osmanlı</button>
+      <button class="btn" id="btnClear">Temizle</button>
+    </div>
+  </div>
 
-    <div class="row">
-      <div class="card chat">
-        <div class="messages" id="messages"></div>
-        <div class="inputbar">
-          <textarea id="input" placeholder='Bir şey yaz... (örn: "Sana bir şey sormak istiyorum" / "12 bölü 3" / "osmanlının 2. padişahı" / "Konu anlat: Elektrik devreleri")'></textarea>
-          <button id="send">Gönder</button>
-        </div>
-      </div>
+  <div class="wrap"><div class="chat" id="chat"></div></div>
 
-      <div class="card side">
-        <h3>Hızlı Denemeler</h3>
-        <p>Bir butona tıkla, kutuya otomatik yazar.</p>
-        <div class="quick" id="quick"></div>
-        <div class="sep"></div>
-        <p class="kbd">
-          Komutlar:<br/>
-          • <b>Benim adım ...</b><br/>
-          • <b>Sana bir şey sormak istiyorum</b><br/>
-          • <b>Konu anlat: ...</b> / <b>... detay</b><br/>
-          • <b>7. sınıf konular</b><br/>
-          • <b>test: ...</b> (mini test modu)
-        </p>
-      </div>
+  <div class="composer">
+    <div class="inner">
+      <textarea id="inp" placeholder='Bir şey yaz... (örn: "Konu anlat: Karışımlar", "test: karışımlar", "osmanlının 2. padişahı nasıl öldü", "cumhuriyet ne zaman ilan edildi", "3 km kaç m")'></textarea>
+      <button class="send" id="send">Gönder</button>
+    </div>
+    <div class="hintbar">
+      <span class="chip" data-q="Benim adım Mehmet">Benim adım…</span>
+      <span class="chip" data-q="Konu anlat: Karışımlar">Konu anlat</span>
+      <span class="chip" data-q="test: karışımlar">Test</span>
+      <span class="chip" data-q="osmanlının 7. padişahı kim">Osmanlı kaçıncı</span>
+      <span class="chip" data-q="osmanlının 17. padişahı nasıl öldü">Osmanlı ölüm</span>
+      <span class="chip" data-q="cumhuriyet ne zaman ilan edildi">Cumhuriyet</span>
+      <span class="chip" data-q="12 bölü 3">Hesap</span>
+      <span class="chip" data-q="saat kaç">Saat</span>
     </div>
   </div>
 
 <script>
 (() => {
-  const $ = (id)=>document.getElementById(id);
-  const messagesEl = $("messages");
-  const inputEl = $("input");
-  const nameBadge = $("nameBadge");
-
+  // ---------- Storage ----------
   const store = {
-    get(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)) ?? fallback }catch{ return fallback } },
-    set(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+    get(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch{ return d } },
+    set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
   };
 
   const state = {
-    name: store.get("eb_name", ""),
-    chat: store.get("eb_chat", []),
-    greeted: store.get("eb_greeted", false),
-    lastTopic: store.get("eb_lastTopic", ""), // konu anlat için
-    testMode: store.get("eb_testMode", null), // {subject, topic, qIndex, score}
+    name: store.get("ea_name",""),
+    title: store.get("ea_title","Emir AI"),
+    chat: store.get("ea_chat", []),
+    lastTopic: store.get("ea_lastTopic",""),
+    test: store.get("ea_test", null) // {key, i, score}
   };
 
-  function nowTime(){
-    const d = new Date();
-    return d.toLocaleTimeString("tr-TR", {hour:"2-digit", minute:"2-digit"});
-  }
+  const $ = (id)=>document.getElementById(id);
+  const chatEl = $("chat");
+  const inp = $("inp");
+  const sendBtn = $("send");
 
-  function setName(n){
-    state.name = n.trim();
-    store.set("eb_name", state.name);
-    nameBadge.textContent = "İsim: " + (state.name || "—");
-  }
+  $("brandTitle").textContent = state.title;
 
-  function pushMsg(who, text){
-    const msg = { who, text, t: nowTime() };
-    state.chat.push(msg);
-    store.set("eb_chat", state.chat);
-    renderMsg(msg);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
+  const now = () => new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  const today = () => new Date().toLocaleDateString("tr-TR",{weekday:"long", year:"numeric", month:"long", day:"numeric"});
 
-  function renderMsg(m){
-    const div = document.createElement("div");
-    div.className = "msg " + (m.who === "me" ? "me":"bot");
-    div.innerHTML = `
-      <div>${escapeHtml(m.text).replace(/\n/g,"<br/>")}</div>
-      <div class="meta">
-        <span>${m.who === "me" ? "Sen" : "EMİR BABA"}</span>
-        <span>${m.t}</span>
-      </div>
-    `;
-    messagesEl.appendChild(div);
-  }
-
-  function escapeHtml(s){
-    return String(s)
-      .replaceAll("&","&amp;").replaceAll("<","&lt;")
-      .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-  }
-
-  function clearUI(){
-    messagesEl.innerHTML = "";
-    state.chat.forEach(renderMsg);
-    messagesEl.scrollTop = messagesEl.scrollHeight;
-  }
-
-  // --- Bilgi Bankası (Offline) ---
-
-  const OTTOMAN_SULTANS = [
-    "Osman Gazi",
-    "Orhan Gazi",
-    "I. Murad (Hüdavendigâr)",
-    "Yıldırım Bayezid",
-    "I. Mehmed (Çelebi)",
-    "II. Murad",
-    "II. Mehmed (Fatih Sultan Mehmed)",
-    "II. Bayezid",
-    "I. Selim (Yavuz)",
-    "I. Süleyman (Kanuni)",
-    "II. Selim",
-    "III. Murad",
-    "III. Mehmed",
-    "I. Ahmed",
-    "I. Mustafa",
-    "II. Osman (Genç Osman)",
-    "IV. Murad",
-    "I. İbrahim",
-    "IV. Mehmed",
-    "II. Süleyman",
-    "II. Ahmed",
-    "II. Mustafa",
-    "III. Ahmed",
-    "I. Mahmud",
-    "III. Osman",
-    "III. Mustafa",
-    "I. Abdülhamid",
-    "III. Selim",
-    "IV. Mustafa",
-    "II. Mahmud",
-    "Abdülmecid",
-    "Abdülaziz",
-    "V. Murad",
-    "II. Abdülhamid",
-    "V. Mehmed (Reşad)",
-    "VI. Mehmed (Vahdeddin)"
-  ];
-
-  const SCIENCE_FORMULAS = [
-    {k:"Hız", v:"v = yol / zaman"},
-    {k:"Yoğunluk", v:"d = kütle / hacim"},
-    {k:"İş", v:"W = Kuvvet × Yol (aynı doğrultu)"},
-    {k:"Güç", v:"P = İş / Zaman"},
-    {k:"Basınç", v:"P = Kuvvet / Yüzey Alanı"},
-    {k:"Ağırlık", v:"G = m × g  (g ≈ 9,8 N/kg)"},
-  ];
-
-  // 7. sınıf ana konu haritası (genel çerçeve)
-  const GRADE7_TOPICS = {
-    "Fen Bilimleri": [
-      "Güneş Sistemi ve Ötesi",
-      "Hücre ve Bölünmeler (Mitoz/Mayoz)",
-      "Kuvvet ve Enerji",
-      "Saf Maddeler ve Karışımlar",
-      "Işığın Madde ile Etkileşimi",
-      "Elektrik Devreleri"
-    ],
-    "Matematik": [
-      "Tam Sayılar / Rasyonel Sayılar",
-      "Oran-Orantı / Yüzdeler",
-      "Cebirsel İfadeler / Denklem",
-      "Doğrular-Açılar / Çokgenler",
-      "Çember ve Daire (temel)",
-      "Veri Analizi (grafikler)"
-    ],
-    "Türkçe": [
-      "Paragraf (ana fikir-yardımcı fikir)",
-      "Sözcükte/Sözde Anlam, Deyim-Atasözü",
-      "Cümlede Anlam",
-      "Yazım Kuralları / Noktalama",
-      "Fiilimsiler / Fiilde Yapı (temel)",
-      "Metin Türleri (hikâye, şiir, bilgilendirici)"
-    ],
-    "Sosyal Bilgiler": [
-      "İletişim ve İnsan İlişkileri",
-      "Nüfus ve Yerleşme",
-      "Üretim-Dağıtım-Tüketim",
-      "Bilim-Teknoloji-Toplum",
-      "Demokrasi ve Vatandaşlık"
-    ],
-    "Din Kültürü": [
-      "İbadet ve Dua",
-      "Ahlak (güzel davranışlar)",
-      "Peygamberlerin örnekliği (genel)",
-      "İslam'da bilgi ve sorumluluk (genel)"
-    ],
-    "İngilizce": [
-      "Daily Routines / Simple Present",
-      "Likes-Dislikes",
-      "Descriptions (People/Places)",
-      "Past Simple (temel)",
-      "Shopping / Numbers / Prices"
-    ]
-  };
-
-  const TOPIC_EXPLAINS = {
-    "elektrik devreleri": `Elektrik Devreleri (7. sınıf - kısa):
-• Devre elemanları: pil, ampul, anahtar, bağlantı kablosu.
-• Kapalı devre olursa ampul yanar; açık devrede yanmaz.
-• Seri devrede: ampuller paylaşır, biri çıkarsa devre bozulur.
-• Paralel devrede: kollar bağımsız; bir ampul bozulsa diğerleri yanabilir.
-Detay istersen: "Elektrik devreleri detay" yaz.`,
-    "karışımlar": `Karışımlar (7. sınıf - kısa):
-• Homojen (çözelti): her yeri aynı (tuzlu su).
-• Heterojen: her yeri aynı değil (kumlu su).
-• Ayırma yöntemleri: süzme, eleme, mıknatıs, buharlaştırma, yoğunluk farkı.
-Detay istersen: "Karışımlar detay" yaz.`,
-    "ibadet ve dua": `Din Kültürü • İbadet ve Dua (kısa):
-• İbadet: Allah’a kulluk amacıyla yapılan davranışlar (namaz, oruç, zekât gibi).
-• Dua: Allah’tan isteme, şükür ve bağışlanma dileme.
-Detay istersen: "İbadet ve Dua detay" yaz.`
-  };
-
-  // Mini test bankası (çok basit örnek)
-  const MINI_TESTS = {
-    "fen: karışımlar": [
-      {q:"Homojen karışıma örnek hangisidir?", a:["Kumlu su","Tuzlu su","Yağ-su"], c:1},
-      {q:"Süzme yöntemi hangi karışımlarda işe yarar?", a:["Katı+sıvı","Gaz+gaz","Sıvı+sıvı"], c:0},
-    ],
-    "mat: bölme": [
-      {q:"12 ÷ 3 kaçtır?", a:["3","4","5"], c:1},
-      {q:"20 ÷ 5 kaçtır?", a:["2","4","5"], c:1},
-    ],
-    "tarih: osmanlı": [
-      {q:"İstanbul’u fetheden padişah kimdir?", a:["Yavuz","Fatih","Kanuni"], c:1},
-      {q:"Osmanlı’nın kurucusu kimdir?", a:["Osman Gazi","Orhan Gazi","I. Murad"], c:0},
-    ]
-  };
-
-  // --- Yardımcılar ---
-  function normalize(s){
-    return s.toLowerCase()
-      .replaceAll("ı","i").replaceAll("İ","i")
-      .replaceAll("ş","s").replaceAll("ğ","g")
-      .replaceAll("ü","u").replaceAll("ö","o")
-      .replaceAll("ç","c")
+  function norm(s){
+    return (s||"").toLowerCase()
+      .replaceAll("ı","i").replaceAll("ğ","g").replaceAll("ü","u")
+      .replaceAll("ş","s").replaceAll("ö","o").replaceAll("ç","c")
+      .replace(/[?!.,"'’]/g," ")
+      .replace(/\s+/g," ")
       .trim();
   }
 
-  function looksLikeMath(expr){
-    // 12 bölü 3 / 12/3 / 12 ÷ 3 / 12x3 / 12*3 gibi
-    const s = normalize(expr)
-      .replaceAll("bolu","/").replaceAll("bölü","/")
-      .replaceAll("÷","/").replaceAll("×","*").replaceAll("x","*");
-    return /^[0-9\s+\-*/().]+$/.test(s) && /[0-9]/.test(s) && /[+\-*/]/.test(s);
+  function addRow(who, text){
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const av = document.createElement("div");
+    av.className = "avatar " + (who==="me" ? "me":"bot");
+    av.textContent = who==="me" ? "S" : "AI";
+
+    const bub = document.createElement("div");
+    bub.className = "bubble";
+    bub.textContent = text;
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = (who==="me" ? "Sen" : state.title) + " • " + now();
+    bub.appendChild(meta);
+
+    row.appendChild(av);
+    row.appendChild(bub);
+    chatEl.appendChild(row);
+    chatEl.scrollTop = chatEl.scrollHeight;
+
+    state.chat.push({who, text, t: Date.now()});
+    store.set("ea_chat", state.chat.slice(-220));
   }
 
-  function safeEvalMath(expr){
-    const s = normalize(expr)
-      .replaceAll("bolu","/").replaceAll("bölü","/")
-      .replaceAll("÷","/").replaceAll("×","*").replaceAll("x","*")
-      .replaceAll(",",".");
+  function typingOn(){
+    const row = document.createElement("div");
+    row.className = "row";
+    row.id = "typingRow";
 
-    // Güvenlik: sadece rakam ve işlem karakterleri
-    if(!/^[0-9\s+\-*/().]+$/.test(s)) return null;
+    const av = document.createElement("div");
+    av.className = "avatar bot";
+    av.textContent = "AI";
 
-    try{
-      // eslint-disable-next-line no-new-func
-      const val = Function('"use strict";return (' + s + ')')();
-      if(typeof val === "number" && isFinite(val)) return val;
-      return null;
-    }catch{
-      return null;
-    }
+    const bub = document.createElement("div");
+    bub.className = "bubble";
+    bub.innerHTML = `<span class="typing">Yazıyor <span class="dot"></span><span class="dot"></span><span class="dot"></span></span>`;
+
+    row.appendChild(av);
+    row.appendChild(bub);
+    chatEl.appendChild(row);
+    chatEl.scrollTop = chatEl.scrollHeight;
+  }
+  function typingOff(){ const t = document.getElementById("typingRow"); if(t) t.remove(); }
+
+  function autoResize(){
+    inp.style.height = "0px";
+    inp.style.height = Math.min(inp.scrollHeight, 160) + "px";
   }
 
-  function getOrdinalNumberQuestion(textN){
-    // "osmanlının 2. padişahı" gibi
-    const m = textN.match(/osmanli.*?(\d{1,2})\s*\.?\s*padi(s|ş)ah/);
-    if(!m) return null;
-    const n = parseInt(m[1],10);
-    if(!Number.isFinite(n) || n<1 || n>OTTOMAN_SULTANS.length) return null;
-    return n;
-  }
-
-  function replyWelcome(){
-    const n = state.name ? ` ${state.name}` : "";
-    return `Selam${n}! Ben EMİR BABA 😎\nİstersen "Benim adım ..." yaz, adını hatırlayayım.\nSorunu direkt yaz: fen / matematik / tarih / türkçe / din / ingilizce… elimden geldiğince cevaplarım.`;
-  }
-
-  function replyHelp(){
-    return `Kısayollar:
-• "Benim adım Mehmet" → adını kaydeder.
-• "Sana bir şey sormak istiyorum" → ben: "Tabiki EMİR BABA, ne istersen yaz 😎"
-• "7. sınıf konular" → ders ders konu listesi
-• "Konu anlat: elektrik devreleri" → konu anlatır
-• "12 bölü 3" / "25*4" → hesaplar
-• "osmanlının 4. padişahı kim" → direkt söyler
-• "test: karışımlar" / "test: osmanlı" → mini test başlatır`;
-  }
+  // ---------- Knowledge: 7. Sınıf (konu haritası) ----------
+  const GRADE7 = {
+    "Fen Bilimleri": [
+      ["Güneş Sistemi ve Ötesi", "Gezegenler, tutulmalar, uzay teknolojileri, yıldızlar-galaksiler."],
+      ["Hücre ve Bölünmeler", "Hücre yapısı, mitoz-mayoz, büyüme-onarım, üreme."],
+      ["Kuvvet ve Enerji", "İş-güç-enerji, sürtünme, enerji dönüşümleri."],
+      ["Saf Maddeler ve Karışımlar", "Element-bileşik, çözelti, ayırma yöntemleri."],
+      ["Işığın Madde ile Etkileşimi", "Yansıma-kırılma, mercekler, renkler."],
+      ["Elektrik Devreleri", "Seri-paralel devre, ampul parlaklığı, devre elemanları."]
+    ],
+    "Matematik": [
+      ["Tam Sayılar", "İşaret kuralları, mutlak değer, işlemler, problemler."],
+      ["Rasyonel Sayılar", "Kesir-ondalık, karşılaştırma, işlemler."],
+      ["Oran-Orantı", "Doğru/ters orantı, problemler."],
+      ["Yüzdeler", "İndirim-zam, yüzde hesapları."],
+      ["Cebirsel İfadeler", "Terim-katsayı, parantez, sadeleştirme."],
+      ["Denklemler", "Basit denklemler, problem çözme."],
+      ["Doğrular-Açılar", "Temel geometrik ilişkiler."],
+      ["Çokgenler", "Üçgen-dörtgen özellikleri (temel)."],
+      ["Veri Analizi", "Tablo-grafik, yorumlama."]
+    ],
+    "Türkçe": [
+      ["Paragraf", "Ana fikir, yardımcı fikir, konu, başlık."],
+      ["Sözcükte Anlam", "Gerçek/mecaz/terim, deyim-atasözü."],
+      ["Cümlede Anlam", "Neden-sonuç, amaç-sonuç, koşul, çıkarım."],
+      ["Yazım Kuralları", "Büyük harfler, birleşik kelimeler, sayıların yazımı."],
+      ["Noktalama", "Virgül, nokta, iki nokta, kesme, tırnak vb."],
+      ["Fiilimsiler", "İsim-fiil, sıfat-fiil, zarf-fiil (temel)."],
+      ["Söz Sanatları", "Benzetme, kişileştirme, abartma, konuşturma."]
+    ],
+    "Sosyal Bilgiler": [
+      ["Birey ve Toplum", "Hak-sorumluluk, iletişim, empati."],
+      ["Kültür ve Miras", "Türk-İslam ve Osmanlı kültürü, miras."],
+      ["İnsanlar ve Çevre", "Nüfus, göç, yerleşme, iklim (temel)."],
+      ["Bilim-Teknoloji-Toplum", "Teknolojinin etkileri, etik."],
+      ["Üretim-Dağıtım-Tüketim", "Kaynaklar, ekonomi, bilinçli tüketim."],
+      ["Etkin Vatandaşlık", "Demokrasi, katılım, yönetim (temel)."]
+    ],
+    "Din Kültürü": [
+      ["İbadet ve Dua", "İbadetin anlamı, dua, ahlak ilişkisi."],
+      ["Ahlak", "Güzel davranışlar, sorumluluk, kul hakkı."],
+      ["Hz. Muhammed’in Örnekliği", "Doğruluk, güven, merhamet (genel)."],
+      ["İslam’da Bilgi", "Bilginin önemi, doğru kaynak, sorumluluk (genel)."]
+    ],
+    "İngilizce": [
+      ["Daily Routines", "Simple Present, saatler, rutinler."],
+      ["Likes / Dislikes", "Seviyorum-sevmiyorum, tercih bildirme."],
+      ["Descriptions", "People/places, sıfatlar."],
+      ["Past Simple (temel)", "Dün ne yaptın? (basic)."],
+      ["Shopping / Numbers", "Fiyat, sayı, basit diyalog."]
+    ]
+  };
 
   function listTopics(){
-    let out = "7. sınıf konular (genel çerçeve):\n";
-    for(const [lesson, arr] of Object.entries(GRADE7_TOPICS)){
-      out += `\n• ${lesson}:\n  - ` + arr.join("\n  - ");
+    let out = "7. sınıf konu haritası (özet):\n";
+    for(const [lesson, arr] of Object.entries(GRADE7)){
+      out += `\n• ${lesson}:\n` + arr.map((x,i)=>`  ${i+1}) ${x[0]}`).join("\n") + "\n";
     }
-    out += `\n\nİstersen: "Konu anlat: karışımlar" gibi yaz.`;
-    return out;
-  }
-
-  function answerScienceFormulas(textN){
-    if(!textN.includes("formul") && !textN.includes("formül") && !textN.includes("formuller") && !textN.includes("formüller")) return null;
-    let out = "Bazı temel formüller:\n";
-    for(const f of SCIENCE_FORMULAS){
-      out += `• ${f.k}: ${f.v}\n`;
-    }
-    out += "\nİstersen hangi konunun formülünü istiyorsun, söyle (örn: basınç / hız / yoğunluk).";
+    out += "\nKullanım:\n- \"Konu anlat: Karışımlar\"\n- \"Karışımlar detay\"\n- \"test: karışımlar\"";
     return out.trim();
   }
 
-  function answerOttoman(textN){
-    if(textN.includes("osmanli") && (textN.includes("padisah") || textN.includes("padişah"))){
-      const ord = getOrdinalNumberQuestion(textN);
-      if(ord){
-        return `Osmanlı'nın ${ord}. padişahı: **${OTTOMAN_SULTANS[ord-1]}**.`;
-      }
-      if(textN.includes("tum") || textN.includes("hepsi") || textN.includes("liste")){
-        return "Osmanlı padişahları (sırasıyla):\n• " + OTTOMAN_SULTANS.join("\n• ");
-      }
+  // ---------- Knowledge: Cumhuriyet ----------
+  const REPUBLIC = {
+    proclamation: "Türkiye Cumhuriyeti, TBMM’de 29 Ekim 1923’te yapılan anayasa değişikliğiyle ilan edildi; Mustafa Kemal Atatürk ilk cumhurbaşkanı seçildi.",
+    republicDay: "29 Ekim Cumhuriyet Bayramı her yıl 29 Ekim’de kutlanır (kutlamalar 28 Ekim öğleden sonra başlayabilir)."
+  };
+
+  // ---------- Knowledge: Osmanlı (kaçıncı + ölüm notu) ----------
+  // Kaynak olarak listede açıkça belirtilen notlar (killed/murdered/strangled/executed/died in exile vb.) kullanıldı.
+  // Diğerleri için: "saltanatı ölümüne kadar sürdü" gibi genel not verilir. :contentReference[oaicite:2]{index=2}
+  const OTTOMAN = [
+    {n:1, name:"Osman Gazi", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:2, name:"Orhan Gazi", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:3, name:"I. Murad (Hüdavendigâr)", deathNote:"Kosova Savaşı (1389) sonrası öldürüldü/şehit edildi (savaş meydanı)."},
+    {n:4, name:"Yıldırım Bayezid", deathNote:"Ankara Savaşı’nda esir düştü; Akşehir’de esarette öldü (1403)."},
+    {n:5, name:"I. Mehmed (Çelebi)", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:6, name:"II. Murad", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:7, name:"II. Mehmed (Fatih)", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:8, name:"II. Bayezid", deathNote:"Tahttan indirildi; Dimetoka yakınlarında öldü (1512)."},
+    {n:9, name:"I. Selim (Yavuz)", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:10, name:"I. Süleyman (Kanuni)", deathNote:"Szigetvar Kuşatması sırasında otağında öldü (1566)."},
+    {n:11, name:"II. Selim", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:12, name:"III. Murad", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:13, name:"III. Mehmed", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:14, name:"I. Ahmed", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:15, name:"I. Mustafa", deathNote:"İkinci saltanatı sonrası sarayda tutuldu; İstanbul’da öldü (1639)."},
+    {n:16, name:"II. Osman (Genç Osman)", deathNote:"Yeniçeri isyanıyla tahttan indirildi; öldürüldü (1622)."},
+    {n:17, name:"IV. Murad", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:18, name:"I. İbrahim", deathNote:"Tahttan indirildi; İstanbul’da boğduruldu (1648)."},
+    {n:19, name:"IV. Mehmed", deathNote:"Tahttan indirildi (1687); Edirne’de öldü (1693)."},
+    {n:20, name:"II. Süleyman", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:21, name:"II. Ahmed", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:22, name:"II. Mustafa", deathNote:"Edirne Vakası sonrası tahttan indirildi; İstanbul’da öldü (1704)."},
+    {n:23, name:"III. Ahmed", deathNote:"Patrona Halil isyanı sonrası tahttan indirildi; öldü (1736)."},
+    {n:24, name:"I. Mahmud", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:25, name:"III. Osman", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:26, name:"III. Mustafa", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:27, name:"I. Abdülhamid", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:28, name:"III. Selim", deathNote:"Tahttan indirildi; İstanbul’da öldürüldü (1808)."},
+    {n:29, name:"IV. Mustafa", deathNote:"Tahttan indirildi; İstanbul’da idam edildi (1808)."},
+    {n:30, name:"II. Mahmud", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:31, name:"Abdülmecid", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:32, name:"Abdülaziz", deathNote:"Tahttan indirildi; 5 gün sonra ölü bulundu (intihar/öldürülme tartışmalı)."},
+    {n:33, name:"V. Murad", deathNote:"Sağlık nedeniyle indirildi; Çırağan Sarayı’nda öldü (1904)."},
+    {n:34, name:"II. Abdülhamid", deathNote:"Tahttan indirildi; Beylerbeyi Sarayı’nda öldü (1918)."},
+    {n:35, name:"V. Mehmed (Reşad)", deathNote:"Saltanatı ölümüne kadar sürdü."},
+    {n:36, name:"VI. Mehmed (Vahdeddin)", deathNote:"Saltanat kaldırıldı; sürgünde (Sanremo, İtalya) öldü (1926)."}
+  ];
+
+  function findOttomanByOrdinal(textN){
+    const m = textN.match(/(\d{1,2})\s*\.?\s*padi/);
+    if(!m) return null;
+    const n = parseInt(m[1],10);
+    return OTTOMAN.find(x=>x.n===n) || null;
+  }
+
+  // ---------- Mini tests ----------
+  const MINI_TESTS = {
+    "karisimlar": [
+      {q:"Homojen karışım hangisidir?", a:["Kumlu su","Tuzlu su","Yağ-su"], c:1},
+      {q:"Tuzlu sudan tuzu ayırma yöntemi?", a:["Süzme","Buharlaştırma","Eleme"], c:1},
+      {q:"Kumlu suyu ayırma yöntemi?", a:["Süzme","Mıknatıs","Damıtma"], c:0},
+    ],
+    "elektrik": [
+      {q:"Seri devrede ampul sayısı artarsa parlaklık genelde?", a:["Artar","Azalır","Değişmez"], c:1},
+      {q:"Paralel devrede bir ampul patlarsa diğerleri?", a:["Söner","Yanmayı sürdürür","Hepsi patlar"], c:1},
+    ],
+    "osmanli": [
+      {q:"İstanbul’u fetheden padişah?", a:["Fatih","Yavuz","Kanuni"], c:0},
+      {q:"Osmanlı’nın kurucusu?", a:["Orhan","Osman","I. Murad"], c:1},
+    ]
+  };
+
+  function startTest(raw){
+    const t = norm(raw);
+    if(!t.startsWith("test:")) return null;
+    const key = norm(t.split("test:")[1] || "").trim();
+
+    let k=null;
+    if(key.includes("karisim")) k="karisimlar";
+    else if(key.includes("elektrik")) k="elektrik";
+    else if(key.includes("osman")) k="osmanli";
+    else return "Bu test yok. Deneyin: test: karışımlar / elektrik / osmanlı";
+
+    state.test = {key:k, i:0, score:0};
+    store.set("ea_test", state.test);
+
+    const q = MINI_TESTS[k][0];
+    return `Mini test başladı (${key}).\nSoru 1: ${q.q}\nA) ${q.a[0]}\nB) ${q.a[1]}\nC) ${q.a[2]}\nCevap: A/B/C`;
+  }
+
+  function answerTest(raw){
+    if(!state.test) return null;
+    const t = norm(raw);
+    if(t === "test iptal" || t === "iptal"){
+      state.test=null; store.set("ea_test", state.test);
+      return "Test modunu kapattım ✅";
     }
-    if(textN.includes("istanbulu") || textN.includes("istanbulu kim") || textN.includes("istanbulu hangi")){
-      if(textN.includes("fethet")){
-        return "İstanbul’u fetheden padişah: **II. Mehmed (Fatih Sultan Mehmed)** (1453).";
-      }
+    const a = raw.trim().toUpperCase();
+    if(!["A","B","C"].includes(a)) return `Test modundayız. Sadece A/B/C yaz.\n(Çıkmak için: "test iptal")`;
+
+    const bank = MINI_TESTS[state.test.key];
+    const q = bank[state.test.i];
+    const idx = {A:0,B:1,C:2}[a];
+
+    let out = "";
+    if(idx===q.c){ state.test.score++; out += "✅ Doğru!\n"; }
+    else out += `❌ Yanlış. Doğru cevap: ${["A","B","C"][q.c]}\n`;
+
+    state.test.i++;
+    if(state.test.i >= bank.length){
+      out += `\nTest bitti! Skor: ${state.test.score}/${bank.length}\nYeni test: "test: karışımlar / elektrik / osmanlı"`;
+      state.test=null; store.set("ea_test", state.test);
+      return out.trim();
+    }
+    store.set("ea_test", state.test);
+    const nq = bank[state.test.i];
+    out += `Soru ${state.test.i+1}: ${nq.q}\nA) ${nq.a[0]}\nB) ${nq.a[1]}\nC) ${nq.a[2]}\nCevap: A/B/C`;
+    return out.trim();
+  }
+
+  // ---------- “Günlük en sık sorular” (offline FAQ seti) ----------
+  function dailyFAQ(textN){
+    // Basit yönlendirme/cevaplar (offline)
+    if(textN.includes("saat kac") || textN.includes("saat kaç")) return `Şu an saat: ${new Date().toLocaleTimeString("tr-TR")}`;
+    if(textN.includes("bugun") && (textN.includes("gun") || textN.includes("tarih"))) return `Bugün: ${today()}`;
+    if(textN.includes("nasilsin") || textN.includes("nasi gidiyor")) return "İyiyim 🙂 Sen nasılsın?";
+    if(textN.includes("ne yapayim") || textN.includes("ne yapalim")){
+      return "3 hızlı öneri:\n1) 10 dk tekrar: \"Konu anlat: ...\"\n2) Mini test: \"test: ...\"\n3) Bir hedef yaz: Bugün tek iş = (…)\nHangisini seçtin?";
+    }
+    if(textN.includes("ozetle") || textN.includes("özetle")){
+      return "Neyi özetleyeyim? Metni buraya yapıştır veya konu başlığını yaz.";
+    }
+    if(textN.includes("mail") || textN.includes("e posta") || textN.includes("eposta")){
+      return "E-posta yazdırmak için: Kime + konu + amaç + ton (resmi/samimi) yaz, ben taslak çıkarayım.";
+    }
+    if(textN.includes("cv") || textN.includes("özgeçmiş")){
+      return "CV için: eğitim + iş deneyimi + beceriler + hedef pozisyon yaz, düzenleyeyim.";
     }
     return null;
   }
 
-  function answerTopicExplain(textRaw){
-    // "Konu anlat: X" veya "... detay"
-    const tN = normalize(textRaw);
+  // ---------- Math / conversions ----------
+  function tryMath(raw){
+    let s = raw.toLowerCase()
+      .replaceAll("çarpı","*").replaceAll("carpi","*").replaceAll("x","*").replaceAll("×","*")
+      .replaceAll("artı","+").replaceAll("arti","+")
+      .replaceAll("eksi","-")
+      .replaceAll("bölü","/").replaceAll("bolu","/").replaceAll("÷","/")
+      .replaceAll(",",".");
+    s = s.replace(/[^0-9+\-*/().\s]/g,"").trim();
+    if(!s) return null;
+    if(!(/\d/.test(s) && /[+\-*/]/.test(s))) return null;
+    try{
+      const v = Function('"use strict";return ('+s+')')();
+      if(!isFinite(v)) return "Sonuç tanımsız (0’a bölme olabilir).";
+      const pretty = (Math.abs(v)%1===0) ? String(v) : String(Number(v.toFixed(6)));
+      return `Sonuç: ${pretty}\nİşlem: ${s}`;
+    }catch{ return null; }
+  }
 
-    if(tN.startsWith("konu anlat:")){
-      const topic = tN.split("konu anlat:")[1].trim();
-      state.lastTopic = topic;
-      store.set("eb_lastTopic", state.lastTopic);
+  function unitConvert(textN){
+    // km->m, m->cm, kg->g, l->ml
+    const m1 = textN.match(/(\d+(?:\.\d+)?)\s*km\s*(kac|kaç)?\s*m/);
+    if(m1) return `${m1[1]} km = ${Number(m1[1])*1000} m`;
+    const m2 = textN.match(/(\d+(?:\.\d+)?)\s*m\s*(kac|kaç)?\s*cm/);
+    if(m2) return `${m2[1]} m = ${Number(m2[1])*100} cm`;
+    const m3 = textN.match(/(\d+(?:\.\d+)?)\s*kg\s*(kac|kaç)?\s*g/);
+    if(m3) return `${m3[1]} kg = ${Number(m3[1])*1000} g`;
+    const m4 = textN.match(/(\d+(?:\.\d+)?)\s*l\s*(kac|kaç)?\s*ml/);
+    if(m4) return `${m4[1]} L = ${Number(m4[1])*1000} mL`;
+    return null;
+  }
 
-      // yakala
-      if(TOPIC_EXPLAINS[topic]) return TOPIC_EXPLAINS[topic];
+  // ---------- Topic explain ----------
+  function explainTopic(raw){
+    const t = norm(raw);
 
-      // benzer anahtarlar
-      if(topic.includes("elektrik")) return TOPIC_EXPLAINS["elektrik devreleri"];
-      if(topic.includes("karisim")) return TOPIC_EXPLAINS["karışımlar"];
-      if(topic.includes("ibadet") || topic.includes("dua")) return TOPIC_EXPLAINS["ibadet ve dua"];
+    if(t.includes("7 sinif") && t.includes("konu")) return listTopics();
 
-      return `Konu anlatabilmem için konuyu biraz daha net yaz: örn.\n• "Konu anlat: Karışımlar"\n• "Konu anlat: Elektrik devreleri"\n• "Konu anlat: Mitoz ve mayoz"`;
+    if(t.startsWith("konu anlat:")){
+      const topic = norm(raw.split(":")[1] || "").trim();
+      state.lastTopic = topic; store.set("ea_lastTopic", state.lastTopic);
+
+      // basit eşleştirme
+      if(topic.includes("elektrik")){
+        return `Elektrik Devreleri (özet):
+• Devre elemanları: pil, ampul, anahtar, kablo.
+• Kapalı devre: yanar. Açık devre: yanmaz.
+• Seri devre: tek yol; biri çıkarsa devre bozulur.
+• Paralel devre: kollar bağımsız çalışır.
+İstersen: "Elektrik devreleri detay" veya "test: elektrik"`;
+      }
+      if(topic.includes("karisim")){
+        return `Saf Maddeler ve Karışımlar (özet):
+• Saf madde: tek tür tanecik (element/bileşik).
+• Karışım: homojen (tuzlu su) / heterojen (kumlu su).
+• Ayırma: süzme, eleme, mıknatıs, buharlaştırma.
+İstersen: "Karışımlar detay" veya "test: karışımlar"`;
+      }
+      if(topic.includes("mitoz") || topic.includes("mayoz") || topic.includes("bolunme") || topic.includes("bölünme")){
+        return `Hücre Bölünmeleri (özet):
+• Mitoz: 1→2 aynı hücre, büyüme-onarım, kromozom sayısı korunur.
+• Mayoz: 1→4 farklı hücre, üreme, kromozom sayısı yarıya iner.`;
+      }
+
+      return `Bu konuyu açabilirim ama başlığı biraz daha net yaz:
+Örn: "Konu anlat: Karışımlar" / "Konu anlat: Elektrik devreleri" / "Konu anlat: Mitoz-Mayoz"`;
     }
 
-    if(tN.endsWith("detay") || tN.includes(" detay")){
-      const base = (tN.replace("detay","").trim()) || state.lastTopic;
+    if(t.endsWith("detay") || t.includes(" detay")){
+      const base = t.replace("detay","").trim() || state.lastTopic;
       if(!base) return null;
 
       if(base.includes("elektrik")){
         return `Elektrik Devreleri (detay):
-• Devre: Elektrik akımının dolaştığı yol.
-• Seri devre: Tek yol vardır. Ampuller eklenirse parlaklık azalabilir. Biri çıkarsa hepsi söner.
-• Paralel devre: Birden fazla yol vardır. Ampuller bağımsız çalışabilir.
-• Anahtar: Devreyi açıp kapatır.
-• Pil: Enerji kaynağıdır.
-İstersen sana 2–3 soru da sorup birlikte pekiştirelim.`;
+• Seri devrede ampul sayısı artarsa parlaklık genelde azalır.
+• Paralel devrede kollar bağımsızdır; bir ampul patlasa diğerleri yanabilir.
+• Ampul parlaklığı: pil sayısı, bağlanma şekli, ampul sayısı gibi etkenlere bağlı.
+İstersen 3 soru sorayım mı? (evet/hayır)`;
       }
       if(base.includes("karisim")){
         return `Karışımlar (detay):
-• Homojen (çözelti): Çözünen + çözücü. Örn: tuzlu su.
-• Heterojen: Karışımın her yerinde aynı görünüm yok. Örn: kumlu su.
-Ayırma yöntemleri:
-• Süzme: katı+sıvı (kumlu su)
-• Eleme: katı+katı (pirinç+nohut)
-• Mıknatıs: mıknatıslanan maddeler (demir tozu)
-• Buharlaştırma: çözeltiler (tuzlu su → tuz)
-İstersen “homojen/heterojen örnek” çalışması yapalım.`;
-      }
-      if(base.includes("ibadet") || base.includes("dua")){
-        return `İbadet ve Dua (detay):
-• İbadet: Allah’a yönelişi gösteren davranışlar. Amaç: kulluk, şükür, arınma.
-• Dua: istek + şükür + tövbe + yardım isteme.
-• Dua ederken: samimiyet, güzel söz, ısrar, iyi niyet önemlidir.
-İstersen bu konudan 5 soru mini test yapayım.`;
+• Homojen (çözelti): çözünen + çözücü.
+• Heterojen: fazlar görülür (yağ-su).
+Ayırma:
+• Süzme (katı+sıvı), Eleme (katı+katı), Mıknatıs, Buharlaştırma.
+İstersen 5 soru: "test: karışımlar"`;
       }
     }
 
     return null;
   }
 
-  function startTest(textN){
-    // "test: karışımlar" / "test: osmanlı" / "test: bölme"
-    if(!textN.startsWith("test:")) return null;
-    const key = normalize(textN.replace("test:","").trim());
-    let fullKey = null;
-    if(key.includes("karisim")) fullKey = "fen: karışımlar";
-    else if(key.includes("osmanli")) fullKey = "tarih: osmanlı";
-    else if(key.includes("bolme") || key.includes("bölme")) fullKey = "mat: bölme";
+  // ---------- Ottoman answers ----------
+  function answerOttoman(raw){
+    const t = norm(raw);
+    if(!(t.includes("osmanli") || t.includes("osmanlı"))) return null;
 
-    if(!fullKey || !MINI_TESTS[fullKey]) return "Test bulamadım. Şunlardan dene: test: karışımlar / test: osmanlı / test: bölme";
-
-    state.testMode = { key: fullKey, qIndex: 0, score: 0 };
-    store.set("eb_testMode", state.testMode);
-
-    const q = MINI_TESTS[fullKey][0];
-    return `Mini Test başladı (${fullKey}).\nSoru 1: ${q.q}\nA) ${q.a[0]}\nB) ${q.a[1]}\nC) ${q.a[2]}\nCevabı A/B/C yaz.`;
-  }
-
-  function handleTestAnswer(textN){
-    if(!state.testMode) return null;
-    const ans = textN.trim().toUpperCase();
-    if(!["A","B","C"].includes(ans)) return `Test modundayız. Cevap olarak sadece A / B / C yaz.`;
-
-    const bank = MINI_TESTS[state.testMode.key];
-    const q = bank[state.testMode.qIndex];
-    const idx = {A:0,B:1,C:2}[ans];
-
-    let out = "";
-    if(idx === q.c){
-      state.testMode.score += 1;
-      out += "✅ Doğru!\n";
-    }else{
-      out += `❌ Yanlış. Doğru cevap: ${["A","B","C"][q.c]}\n`;
+    if(t.includes("tum") || t.includes("hepsi") || t.includes("liste")){
+      return "Osmanlı padişahları (1→36):\n" + OTTOMAN.map(x=>`${x.n}) ${x.name}`).join("\n");
     }
 
-    state.testMode.qIndex += 1;
-
-    if(state.testMode.qIndex >= bank.length){
-      out += `\nTest bitti! Skor: ${state.testMode.score}/${bank.length}\nİstersen yeni test: "test: karışımlar" / "test: osmanlı" / "test: bölme"`;
-      state.testMode = null;
-      store.set("eb_testMode", state.testMode);
-      return out.trim();
-    }
-
-    store.set("eb_testMode", state.testMode);
-    const nq = bank[state.testMode.qIndex];
-    out += `Soru ${state.testMode.qIndex+1}: ${nq.q}\nA) ${nq.a[0]}\nB) ${nq.a[1]}\nC) ${nq.a[2]}\nCevabı A/B/C yaz.`;
-    return out.trim();
-  }
-
-  function coreAnswer(textRaw){
-    const textN = normalize(textRaw);
-
-    // Test modu varsa önce onu yönet
-    const testReply = handleTestAnswer(textN);
-    if(testReply) return testReply;
-
-    // “Sana bir şey sormak istiyorum”
-    if(textN.includes("sana bir sey sormak istiyorum") || textN.includes("sana bir şey sormak istiyorum")){
-      return `Tabiki EMİR BABA, ne istersen yaz 😎`;
-    }
-
-    // İsim kaydet
-    if(textN.startsWith("benim adim") || textN.startsWith("benim adım")){
-      const name = textRaw.split(/benim ad[ıi]m/i)[1]?.trim() || "";
-      if(name){
-        setName(name);
-        return `Tamam ${state.name}! İsmini hatırladım ✅\nŞimdi sorunu yazabilirsin.`;
+    const ord = findOttomanByOrdinal(t);
+    if(ord){
+      if(t.includes("nasil oldu") || t.includes("nasıl öldü") || t.includes("oldu") || t.includes("öldü")){
+        return `Osmanlı'nın ${ord.n}. padişahı: ${ord.name}\nÖlüm notu: ${ord.deathNote}`;
       }
-      return `İsmini şöyle yaz: "Benim adım Mehmet"`;
+      return `Osmanlı'nın ${ord.n}. padişahı: ${ord.name}`;
     }
 
-    // yardım / konular
-    if(textN === "yardim" || textN === "yardım" || textN.includes("yardim et") || textN.includes("yardım et")){
-      return replyHelp();
-    }
-    if(textN.includes("7. sinif") && (textN.includes("konu") || textN.includes("konular"))){
-      return listTopics();
-    }
+    return "Osmanlı için örnek:\n• \"osmanlının 7. padişahı kim\"\n• \"osmanlının 3. padişahı nasıl öldü\"\n• \"osmanlının tüm padişahları\"";
+  }
 
-    // test başlat
-    const testStart = startTest(textN);
+  // ---------- Cumhuriyet answers ----------
+  function answerRepublic(t){
+    if(t.includes("cumhuriyet") && (t.includes("ne zaman") || t.includes("ilan"))){
+      return REPUBLIC.proclamation + "\n\nCumhuriyet Bayramı: " + REPUBLIC.republicDay;
+    }
+    if(t.includes("29 ekim")){
+      return REPUBLIC.republicDay + "\n" + "Cumhuriyetin ilanı: 29 Ekim 1923.";
+    }
+    return null;
+  }
+
+  // ---------- Name ----------
+  function setNameFromText(raw){
+    const m = raw.match(/benim ad[ıi]m\s+(.+)/i);
+    if(!m || !m[1]) return null;
+    state.name = m[1].trim().replace(/[.!?]/g,"");
+    store.set("ea_name", state.name);
+    return `Tamam ${state.name} 😎 İsmini kaydettim.`;
+  }
+
+  // ---------- Help ----------
+  function helpText(){
+    return `Komutlar:
+• ${"`Benim adım ...`"} → isim kaydeder
+• ${"`7. sınıf konular`"} → tüm ders konu haritası
+• ${"`Konu anlat: ...`"} / ${"`... detay`"} → konu anlatım
+• ${"`test: karışımlar / elektrik / osmanlı`"} → mini test
+• ${"`osmanlının 7. padişahı kim`"} / ${"`... nasıl öldü`"} → tarih
+• ${"`cumhuriyet ne zaman ilan edildi`"} → Cumhuriyet bilgisi
+• Hesap: ${"`12 bölü 3`"} / ${"`7*8`"} / ${"`(10+2)/3`"}
+• Birim: ${"`3 km kaç m`"} / ${"`2 kg kaç g`"} / ${"`1.5 L kaç ml`"}`;
+  }
+
+  // ---------- Smart answer ----------
+  function smartAnswer(raw){
+    const t = norm(raw);
+
+    const nameAns = setNameFromText(raw);
+    if(nameAns) return nameAns;
+
+    const testAns = answerTest(raw);
+    if(testAns) return testAns;
+
+    const testStart = startTest(raw);
     if(testStart) return testStart;
 
-    // konu anlat / detay
-    const topic = answerTopicExplain(textRaw);
-    if(topic) return topic;
-
-    // matematik ifade
-    if(looksLikeMath(textRaw)){
-      const val = safeEvalMath(textRaw);
-      if(val === null) return "İşlemi okuyamadım. Örn: 12 bölü 3 / 25*4 / (10+2)/3";
-      return `Sonuç: **${val}**`;
-    }
-
-    // Fen formülleri
-    const f = answerScienceFormulas(textN);
-    if(f) return f;
-
-    // Osmanlı tarih
-    const ott = answerOttoman(textN);
+    const ott = answerOttoman(raw);
     if(ott) return ott;
 
-    // Fen/Mat/Tarih hızlı cevaplar (basit örnekler)
-    if(textN.includes("mitoz") && textN.includes("mayoz")){
-      return `Mitoz vs Mayoz (kısa):
-• Mitoz: Büyüme-onarım; 1 hücre → 2 aynı hücre (kromozom sayısı değişmez).
-• Mayoz: Üreme ana hücrelerinde; 1 hücre → 4 farklı hücre (kromozom sayısı yarıya iner).`;
-    }
-    if(textN.includes("mitoz")){
-      return `Mitoz (kısa): Büyüme ve onarım için. 1 hücre → 2 aynı hücre. Kromozom sayısı değişmez.`;
-    }
-    if(textN.includes("mayoz")){
-      return `Mayoz (kısa): Üreme ana hücrelerinde görülür. 1 hücre → 4 farklı hücre. Kromozom sayısı yarıya iner.`;
-    }
+    const rep = answerRepublic(t);
+    if(rep) return rep;
 
-    // Belirsiz ama ders sorusu gibi: direkt “ne sorduğunu” çözmeye çalış
-    // Eğer kısa/tek kelimeyse netleştir
-    if(textN.length < 3) return "Yazdığını çok kısa gördüm 😅 Biraz daha açık yazar mısın?";
+    const topic = explainTopic(raw);
+    if(topic) return topic;
 
-    // Genel fallback (ama “aynı cümleyi” tekrarlamasın)
-    return `Anladım. Sorunu daha net cevaplamam için cümleni biraz uzatır mısın?\nÖrn:\n• "Konu anlat: Karışımlar"\n• "Osmanlı’nın 7. padişahı kim?"\n• "24 bölü 6"`;
+    const conv = unitConvert(t);
+    if(conv) return conv;
+
+    const math = tryMath(raw);
+    if(math) return math;
+
+    const faq = dailyFAQ(t);
+    if(faq) return faq;
+
+    // küçük “zekileştirme”: ders kelimelerini yakala
+    if(t.includes("mitoz")) return "Mitoz: büyüme-onarım; 1 hücre → 2 aynı hücre; kromozom sayısı değişmez.";
+    if(t.includes("mayoz")) return "Mayoz: üreme ana hücrelerinde; 1 hücre → 4 farklı hücre; kromozom sayısı yarıya iner.";
+    if(t.includes("yuzde") || t.includes("yüzde")) return "Yüzde için örnek yaz: \"120’nin %20’si\" gibi. Ben hesaplayayım.";
+    if(t.includes("paragraf") || t.includes("ana fikir")) return "Paragrafta ana fikir genelde yazarın vermek istediği mesajdır. Metni yapıştır, ana fikri bulayım.";
+
+    // fallback
+    const nick = state.name ? state.name : "kanka";
+    return `Anladım ${nick}. Bunu iki şekilde çözebiliriz:
+1) Ders: "Konu anlat: ..." yaz
+2) Günlük/hesap: soruyu net yaz (örn: "3 km kaç m", "cumhuriyet ne zaman ilan edildi")
+İstersen sorunu aynen tekrar yaz, ben doğru kategoriye sokayım.`;
   }
 
-  // --- UI olaylar ---
-  function boot(){
-    setName(state.name || "");
-    clearUI();
+  // ---------- UI actions ----------
+  function restore(){
+    chatEl.innerHTML = "";
+    for(const m of state.chat.slice(-90)){
+      addRow(m.who, m.text);
+    }
+    // restore() addRow zaten kayda tekrar yazar; bunu önlemek için:
+    state.chat = store.get("ea_chat", []);
+    store.set("ea_chat", state.chat);
 
     if(state.chat.length === 0){
-      pushMsg("bot", replyWelcome());
-      state.greeted = true;
-      store.set("eb_greeted", true);
-    }
+      addRow("bot",
+`Selam! Ben ${state.title} 😎
+• 7. sınıf konu anlatım + test
+• Osmanlı: kaçıncı padişah + (listede geçen) ölüm notu
+• Cumhuriyet: temel bilgiler
+• Günlük: saat/tarih/hesap/birim dönüşüm
 
-    // Quick buttons
-    const quicks = [
-      'Sana bir şey sormak istiyorum',
-      'Benim adım Mehmet',
-      '7. sınıf konular',
-      'Konu anlat: Karışımlar',
-      'Konu anlat: Elektrik devreleri',
-      'Karışımlar detay',
-      '12 bölü 3',
-      'osmanlının 2. padişahı kim',
-      'istanbulu hangi padişah fethetti',
-      'test: karışımlar',
-      'test: osmanlı'
-    ];
-    const qEl = $("quick");
-    qEl.innerHTML = "";
-    quicks.forEach(t=>{
-      const b=document.createElement("button");
-      b.textContent=t;
-      b.onclick=()=>{ inputEl.value=t; inputEl.focus(); };
-      qEl.appendChild(b);
-    });
+Denemek için:
+- "Benim adım Mehmet"
+- "7. sınıf konular"
+- "Konu anlat: Karışımlar"
+- "test: osmanlı"
+- "osmanlının 3. padişahı nasıl öldü"
+- "cumhuriyet ne zaman ilan edildi"`);
+    }
   }
 
   function send(){
-    const text = inputEl.value.trim();
+    const text = inp.value.trim();
     if(!text) return;
-    inputEl.value = "";
-    pushMsg("me", text);
+    inp.value = ""; autoResize();
+    sendBtn.disabled = true;
 
-    // Bot cevap
-    const reply = coreAnswer(text);
-    pushMsg("bot", reply);
+    addRow("me", text);
+    typingOn();
+
+    setTimeout(() => {
+      typingOff();
+      addRow("bot", smartAnswer(text));
+      sendBtn.disabled = false;
+      inp.focus();
+    }, 260);
   }
 
-  $("send").addEventListener("click", send);
-  inputEl.addEventListener("keydown", (e)=>{
-    if(e.key === "Enter" && !e.shiftKey){
-      e.preventDefault();
-      send();
-    }
+  $("btnHelp").onclick = () => addRow("bot", helpText());
+  $("btnTopics").onclick = () => addRow("bot", listTopics());
+  $("btnOtt").onclick = () => addRow("bot", "Osmanlı hızlı komutlar:\n• \"osmanlının tüm padişahları\"\n• \"osmanlının 7. padişahı kim\"\n• \"osmanlının 17. padişahı nasıl öldü\"");
+  $("btnClear").onclick = () => {
+    if(!confirm("Sohbeti temizleyeyim mi?")) return;
+    state.chat = [];
+    store.set("ea_chat", state.chat);
+    restore();
+  };
+  $("btnName").onclick = () => {
+    const n = prompt("Adın ne? (Örn: Mehmet)", state.name || "");
+    if(n === null) return;
+    state.name = (n||"").trim();
+    store.set("ea_name", state.name);
+    addRow("bot", state.name ? `Tamam ${state.name} 🙂` : "İsim temizlendi.");
+  };
+
+  document.querySelectorAll("[data-q]").forEach(ch => {
+    ch.addEventListener("click", () => {
+      inp.value = ch.getAttribute("data-q");
+      autoResize(); inp.focus();
+    });
   });
 
-  $("helpBtn").addEventListener("click", ()=>pushMsg("bot", replyHelp()));
-  $("topicsBtn").addEventListener("click", ()=>pushMsg("bot", listTopics()));
-  $("resetBtn").addEventListener("click", ()=>{
-    if(!confirm("Tüm sohbet ve kayıtlı isim silinsin mi?")) return;
-    localStorage.removeItem("eb_chat");
-    localStorage.removeItem("eb_name");
-    localStorage.removeItem("eb_greeted");
-    localStorage.removeItem("eb_lastTopic");
-    localStorage.removeItem("eb_testMode");
-    location.reload();
-  });
+  sendBtn.onclick = send;
+  inp.addEventListener("input", autoResize);
+  inp.addEventListener("keydown", (e)=>{ if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); send(); } });
 
-  boot();
+  restore();
+  autoResize();
 })();
 </script>
 </body>
