@@ -1,140 +1,714 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ZenoAI - Mehmet Emir AI</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ZenoAI</title>
+  <meta name="description" content="ZenoAI - Sohbet + 7. Sınıf + Genel Bilgi" />
+  <style>
+    :root{
+      --bg:#0b0f19;
+      --panel:#0f1626;
+      --panel2:#0d1322;
+      --card:#111a2e;
+      --card2:#0f1a33;
+      --text:#eaf0ff;
+      --muted:#9aa7c1;
+      --line:rgba(255,255,255,.08);
+      --accent:#7c3aed;
+      --accent2:#22c55e;
+      --danger:#ef4444;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --radius2:14px;
+      --font: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,"Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% 5%, rgba(124,58,237,.25), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(34,197,94,.18), transparent 60%),
+                  radial-gradient(1000px 600px at 50% 90%, rgba(59,130,246,.12), transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      font-family:var(--font);
+      min-height:100vh;
+    }
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 14px 26px;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      position:sticky;
+      top:10px;
+      backdrop-filter: blur(10px);
+      z-index:10;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width: 220px;
+    }
+    .logo{
+      width:40px; height:40px; border-radius:14px;
+      display:grid; place-items:center;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), rgba(255,255,255,0)),
+                  linear-gradient(135deg, rgba(124,58,237,.9), rgba(59,130,246,.7));
+      border:1px solid rgba(255,255,255,.12);
+      position:relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute; inset:-40%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.25), transparent);
+      transform: rotate(25deg);
+      animation: shine 2.8s linear infinite;
+    }
+    @keyframes shine{
+      0%{transform:translateX(-40%) rotate(25deg)}
+      100%{transform:translateX(40%) rotate(25deg)}
+    }
+    .logo span{font-weight:900; letter-spacing:.5px}
+    .titlebox{display:flex; flex-direction:column; line-height:1.05}
+    .title{
+      font-size:18px; font-weight:900; letter-spacing:.3px;
+      display:flex; align-items:baseline; gap:8px;
+    }
+    .title .ai{
+      font-size:12px;
+      padding:3px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+    .subtitle{font-size:12px; color:var(--muted)}
+    .nav{
+      display:flex; align-items:center; gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      transition:.15s transform, .15s background, .15s border;
+      user-select:none;
+      display:inline-flex; gap:8px; align-items:center;
+    }
+    .pill:hover{transform:translateY(-1px); background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.16)}
+    .pill.active{
+      background:rgba(124,58,237,.22);
+      border-color:rgba(124,58,237,.45);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.45fr .9fr;
+      gap:14px;
+      margin-top:14px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr; }
+      .brand{min-width:auto}
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panelHead{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      background:rgba(0,0,0,.18);
+      border-bottom:1px solid var(--line);
+    }
+    .panelHead .hint{
+      font-size:12px; color:var(--muted)
+    }
+    .chat{
+      height: 520px;
+      overflow:auto;
+      padding:14px;
+      background: radial-gradient(800px 400px at 30% 0%, rgba(124,58,237,.08), transparent 55%),
+                  radial-gradient(700px 350px at 80% 10%, rgba(34,197,94,.06), transparent 55%),
+                  var(--panel2);
+    }
+    .msg{
+      max-width: 90%;
+      padding:12px 12px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      margin:8px 0;
+      white-space:pre-wrap;
+      word-break:break-word;
+      line-height:1.35;
+    }
+    .msg .meta{font-size:11px; color:var(--muted); margin-top:6px}
+    .msg.user{
+      margin-left:auto;
+      background:rgba(124,58,237,.18);
+      border-color:rgba(124,58,237,.35);
+    }
+    .msg.bot{
+      margin-right:auto;
+      background:rgba(255,255,255,.04);
+    }
+    .composer{
+      display:flex;
+      gap:10px;
+      padding:12px;
+      border-top:1px solid var(--line);
+      background:rgba(0,0,0,.16);
+      align-items:flex-end;
+    }
+    textarea{
+      width:100%;
+      min-height:42px;
+      max-height:120px;
+      resize:vertical;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      outline:none;
+      font-family:var(--font);
+      font-size:14px;
+    }
+    .btn{
+      border:none;
+      background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(59,130,246,.75));
+      color:white;
+      padding:10px 14px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.15s transform, .15s opacity;
+      white-space:nowrap;
+      height:42px;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      font-weight:600;
+    }
 
-<style>
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:#0f172a;
-  color:#fff;
-}
-header{
-  display:flex;
-  align-items:center;
-  gap:15px;
-  padding:15px 20px;
-  background:#020617;
-  border-bottom:1px solid #1e293b;
-}
-.logo{
-  width:45px;
-  height:45px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#22c55e,#6366f1,#ec4899);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{
-  0%{box-shadow:0 0 5px #22c55e;}
-  50%{box-shadow:0 0 20px #6366f1;}
-  100%{box-shadow:0 0 5px #22c55e;}
-}
-nav button{
-  background:#1e293b;
-  border:none;
-  color:white;
-  padding:8px 12px;
-  border-radius:8px;
-  cursor:pointer;
-}
-nav button:hover{background:#334155;}
-
-.chat{
-  max-width:900px;
-  margin:20px auto;
-  padding:10px;
-}
-.msg{
-  background:#1e293b;
-  padding:10px 15px;
-  border-radius:10px;
-  margin-bottom:10px;
-}
-.user{background:#2563eb;}
-input{
-  width:80%;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-}
-button.send{
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  background:#22c55e;
-  cursor:pointer;
-}
-</style>
+    .side{
+      padding:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+    }
+    .card{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:16px;
+      padding:12px;
+      margin-bottom:12px;
+    }
+    .card h3{
+      margin:0 0 8px;
+      font-size:13px;
+      color:var(--muted);
+      letter-spacing:.2px;
+      font-weight:700;
+    }
+    .quick{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .chip{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.09);
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:13px;
+      cursor:pointer;
+      transition:.15s transform, .15s background;
+    }
+    .chip:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.4;
+    }
+    .small{
+      font-size:12px; color:var(--muted)
+    }
+    .divider{height:1px; background:var(--line); margin:10px 0}
+    .badge{
+      display:inline-flex; gap:6px; align-items:center;
+      font-size:12px; color:var(--muted);
+      border:1px solid rgba(255,255,255,.10);
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+    }
+    .dot{width:8px; height:8px; border-radius:999px; background:var(--accent2)}
+    .typing{
+      display:inline-flex; gap:6px; align-items:center;
+      font-size:12px; color:var(--muted);
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      margin:6px 0 0;
+    }
+    .bub{width:6px; height:6px; border-radius:999px; background:rgba(255,255,255,.45); animation: pop 1.1s infinite}
+    .bub:nth-child(2){animation-delay:.15s}
+    .bub:nth-child(3){animation-delay:.3s}
+    @keyframes pop{
+      0%,100%{transform:translateY(0); opacity:.5}
+      50%{transform:translateY(-3px); opacity:1}
+    }
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-label="ZenoAI logo"><span>Z</span></div>
+        <div class="titlebox">
+          <div class="title">
+            <span id="brandTitle">ZenoAI</span>
+            <span class="ai">Sohbet + 7. Sınıf</span>
+          </div>
+          <div class="subtitle" id="subtitle">Hızlı cevap • konu anlatımı • mini test</div>
+        </div>
+      </div>
 
-<header>
-  <div class="logo">AI</div>
-  <h2>Mehmet Emir AI</h2>
-  <nav>
-    <button onclick="menu('chat')">Sohbet</button>
-    <button onclick="menu('7')">7. Sınıf</button>
-    <button onclick="menu('genel')">Genel</button>
-    <button onclick="menu('about')">Hakkında</button>
-  </nav>
-</header>
+      <div class="nav">
+        <div class="pill active" data-tab="chat">💬 Sohbet</div>
+        <div class="pill" data-tab="ders">📚 7. Sınıf</div>
+        <div class="pill" data-tab="tarih">🏛️ Tarih</div>
+        <div class="pill" data-tab="ayar">⚙️ Ayar</div>
+      </div>
+    </div>
 
-<div class="chat" id="chat">
-  <div class="msg">👋 Merhaba! Ben <b>ZenoAI</b>. Sana nasıl yardımcı olabilirim?</div>
-</div>
+    <div class="grid">
+      <!-- MAIN -->
+      <div class="panel">
+        <div class="panelHead">
+          <div class="badge"><span class="dot"></span> <span id="modeBadge">Mod: Sohbet</span></div>
+          <div class="hint" id="hintText">Örn: “Konu anlat: Karışımlar” • “test: elektrik devreleri” • “12 bölü 3”</div>
+        </div>
 
-<div class="chat">
-  <input id="q" placeholder="Bir şey yaz..." />
-  <button class="send" onclick="send()">Gönder</button>
-</div>
+        <div id="chat" class="chat" aria-live="polite"></div>
+
+        <div class="composer">
+          <textarea id="input" placeholder='Bir şey yaz... (örn: "İstanbul’u kim fethetti?" / "Konu anlat: Hücre" / "teşekkürler")'></textarea>
+          <button class="btn" id="sendBtn">Gönder</button>
+        </div>
+      </div>
+
+      <!-- SIDE -->
+      <div class="panel side">
+        <div class="card">
+          <h3>Hızlı Denemeler</h3>
+          <div class="quick" id="quickChips"></div>
+          <div class="divider"></div>
+          <div class="kbd">
+            <div><b>Komutlar</b></div>
+            <div>• <b>Benim adım</b> ... (isim hatırlar)</div>
+            <div>• <b>Konu anlat:</b> ...</div>
+            <div>• <b>test:</b> ...</div>
+            <div>• <b>7. sınıf konular</b></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Menü</h3>
+          <div class="small">
+            Üstteki menüden mod değiştir. ZenoAI, soruyu algılayıp en uygun şekilde cevaplar.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Not</h3>
+          <div class="small">
+            Bu sürüm “hazır bilgi havuzu + kurallar” ile çalışır. Daha gerçek AI için API eklenebilir.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script>
-function menu(type){
-  const chat=document.getElementById("chat");
-  chat.innerHTML="";
-  if(type==="7"){
-    chat.innerHTML="<div class='msg'>📚 7. Sınıf: Matematik, Fen, Türkçe, Sosyal, Din</div>";
+/* =========================
+   ZenoAI - Tek Dosya
+   (Hazır bilgi + kurallar)
+========================= */
+
+const state = {
+  tab: "chat",
+  userName: "",
+  testMode: false,
+  testTopic: "",
+};
+
+const $chat = document.getElementById("chat");
+const $input = document.getElementById("input");
+const $sendBtn = document.getElementById("sendBtn");
+const $modeBadge = document.getElementById("modeBadge");
+const $hintText = document.getElementById("hintText");
+const $subtitle = document.getElementById("subtitle");
+const $quick = document.getElementById("quickChips");
+
+const quickPrompts = [
+  "Benim adım Mehmet Emir",
+  "7. sınıf konular",
+  "Konu anlat: Karışımlar",
+  "Konu anlat: Elektrik Devreleri",
+  "test: karışımlar",
+  "12 bölü 3",
+  "Osmanlının 2. padişahı kim?",
+  "İstanbul’u hangi padişah fethetti?",
+  "Cumhuriyet ne zaman ilan edildi?",
+  "teşekkürler",
+];
+
+function nowTime(){
+  const d = new Date();
+  return d.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+}
+
+function addMsg(role, text){
+  const div = document.createElement("div");
+  div.className = "msg " + (role === "user" ? "user":"bot");
+  div.innerHTML = `${escapeHtml(text)}<div class="meta">${role==="user" ? (state.userName || "Sen") : "ZenoAI"} • ${nowTime()}</div>`;
+  $chat.appendChild(div);
+  $chat.scrollTop = $chat.scrollHeight;
+}
+
+function escapeHtml(str){
+  return (str+"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
+function showTyping(){
+  const t = document.createElement("div");
+  t.className="typing";
+  t.id="typing";
+  t.innerHTML = `<span class="bub"></span><span class="bub"></span><span class="bub"></span> düşünüyorum...`;
+  $chat.appendChild(t);
+  $chat.scrollTop = $chat.scrollHeight;
+}
+function hideTyping(){
+  const t = document.getElementById("typing");
+  if(t) t.remove();
+}
+
+/* ---------- Bilgi Havuzu ---------- */
+
+// Günlük basit sorular
+const dailyQA = [
+  { keys:["nasılsın","naber","ne haber"], answer:(q)=> `İyiyim${state.userName? " "+state.userName:""} 😄 Sen nasılsın?` },
+  { keys:["kaç yaşındasın","yaşın"], answer:()=> "Ben bir yapay zekayım 🙂 Yaşım yok ama her gün daha iyi oluyorum." },
+  { keys:["saat kaç","kaçta"], answer:()=> "Şu anki saat: " + nowTime() },
+  { keys:["teşekkür","sağol","sağ ol","eyvallah"], answer:()=> "Rica ederim her zaman yanındayım. 🙌" },
+  { keys:["selam","merhaba","sa"], answer:()=> `Selam! Ben ZenoAI 🤝 İstersen “Benim adım ...” yaz.` },
+];
+
+// Osmanlı padişahları (kısa demo; istersen genişletiriz)
+const ottoman = [
+  { n:1, name:"Osman Gazi" },
+  { n:2, name:"Orhan Gazi" },
+  { n:3, name:"I. Murad (Hüdavendigâr)" },
+  { n:4, name:"Yıldırım Bayezid" },
+  { n:5, name:"I. Mehmed (Çelebi)" },
+  { n:6, name:"II. Murad" },
+  { n:7, name:"Fatih Sultan Mehmed" },
+];
+
+// Cumhuriyet bilgileri
+const republicFacts = [
+  { keys:["cumhuriyet ne zaman","cumhuriyet ilan"], answer:()=> "Türkiye Cumhuriyeti 29 Ekim 1923’te ilan edildi." },
+  { keys:["tbmm ne zaman","meclis ne zaman açıldı"], answer:()=> "TBMM 23 Nisan 1920’de açıldı." },
+];
+
+// 7. sınıf konu başlıkları (özet liste)
+const grade7 = {
+  "Matematik": [
+    "Tam sayılar ve rasyonel sayılar",
+    "Oran-orantı, yüzde",
+    "Cebirsel ifadeler",
+    "Eşitlik ve denklem",
+    "Doğrular-açılar",
+    "Çokgenler",
+    "Çember ve daire",
+    "Veri analizi"
+  ],
+  "Fen Bilimleri": [
+    "Hücre ve bölünmeler",
+    "Kuvvet ve enerji",
+    "Saf maddeler ve karışımlar",
+    "Işığın madde ile etkileşimi",
+    "Elektrik devreleri"
+  ],
+  "Türkçe": [
+    "Sözcükte anlam",
+    "Cümlede anlam",
+    "Paragraf",
+    "Fiilimsiler",
+    "Yazım kuralları ve noktalama"
+  ],
+  "Sosyal Bilgiler": [
+    "İletişim ve insan ilişkileri",
+    "Üretim, dağıtım ve tüketim",
+    "Türk tarihinde yolculuk",
+    "Demokrasinin serüveni"
+  ],
+  "Din Kültürü": [
+    "İbadet ve dua",
+    "Ahlak",
+    "Peygamberlerin örnekliği"
+  ],
+  "İngilizce": [
+    "Daily routines",
+    "Preferences",
+    "Descriptions",
+    "Simple questions & answers"
+  ]
+};
+
+// Konu anlatımı mini metinleri (örnek)
+const topicExplain = {
+  "karışımlar": `Karışımlar, en az iki maddenin kimyasal tepkime olmadan bir araya gelmesiyle oluşur.\n• Homojen: Her yerde aynı (tuzlu su)\n• Heterojen: Her yerde aynı değil (kumlu su)\nAyırma yöntemleri: süzme, eleme, buharlaştırma, mıknatısla ayırma, ayırma hunisi.`,
+  "elektrik devreleri": `Basit elektrik devresi: pil (üreteç) + ampul (alıcı) + anahtar + bağlantı kablosu.\n• Seri devre: Ampuller artarsa parlaklık azalır.\n• Paralel devre: Ampuller birbirinden bağımsız yanar.\nAnahtar açıkken devre tamamlanmaz, akım geçmez.`,
+  "ibadet ve dua": `İbadet: Allah’a kulluk etmek için yapılan davranışlar (namaz, oruç, zekat vb.).\nDua: Allah’tan istemek, şükretmek ve yardım dilemek.\nİbadet ve dua insanın hem manevi hem de ahlaki gelişimine katkı sağlar.`
+};
+
+// Mini test soruları (örnek)
+const miniTests = {
+  "karışımlar": [
+    {q:"Tuzlu su hangi tür karışımdır?", a:"Homojen karışım."},
+    {q:"Kumlu suyu ayırmak için hangi yöntem kullanılır?", a:"Süzme (filtreleme)."},
+    {q:"Demir tozu ve kum karışımı nasıl ayrılır?", a:"Mıknatısla ayırma."},
+  ],
+  "elektrik devreleri": [
+    {q:"Anahtar açıkken akım geçer mi?", a:"Hayır, devre tamamlanmaz."},
+    {q:"Seri devrede ampul sayısı artarsa parlaklık ne olur?", a:"Azalır."},
+    {q:"Paralel devrede bir ampul patlarsa diğerleri yanar mı?", a:"Evet, yanar."},
+  ]
+};
+
+/* ---------- Yorumlayıcı ---------- */
+
+function normalize(s){
+  return (s||"")
+    .toLowerCase()
+    .replaceAll("’","'")
+    .trim();
+}
+
+function answerFor(userText){
+  const text = normalize(userText);
+
+  // isim hatırlama
+  if(text.startsWith("benim adım")){
+    const name = userText.split(" ").slice(2).join(" ").trim();
+    if(name){
+      state.userName = name;
+      return `Tamam ${state.userName}! İsmini hatırlayacağım. ✅\nİstersen soru sor veya “7. sınıf konular” yaz.`;
+    }
+    return "İsmini şöyle yaz: “Benim adım Mehmet”";
   }
-  if(type==="genel"){
-    chat.innerHTML="<div class='msg'>🌍 Günlük hayatta sorulan sorulara cevap veririm.</div>";
+
+  // test modu
+  if(text.startsWith("test:")){
+    const topic = normalize(userText.split(":").slice(1).join(":")).trim();
+    if(!topic) return "Test için örnek: “test: karışımlar”";
+    state.testMode = true;
+    state.testTopic = topic;
+    const t = miniTests[topic];
+    if(!t) return `Bu konuda test hazır değil: “${topic}”.\nÖrnek: test: karışımlar / test: elektrik devreleri`;
+    return `Mini test başladı ✅\n1) ${t[0].q}\n(Cevabını yaz, ben kontrol edeyim.)`;
   }
-  if(type==="about"){
-    chat.innerHTML="<div class='msg'>🤖 ZenoAI - Mehmet Emir tarafından geliştirildi.</div>";
+
+  // test cevap kontrol
+  if(state.testMode){
+    const t = miniTests[state.testTopic];
+    if(!t){ state.testMode=false; return "Test modu kapandı."; }
+
+    // basit kontrol: kullanıcı bir şey yazdıysa bir sonraki soruya geç
+    // (burayı istersen “doğru-yanlış” daha akıllı yaparız)
+    const idx = window.__testIndex ?? 0;
+    const correct = t[idx].a;
+    const nextIdx = idx + 1;
+
+    window.__testIndex = nextIdx;
+
+    if(nextIdx >= t.length){
+      state.testMode = false;
+      window.__testIndex = 0;
+      return `Cevabın için teşekkürler ✅\nDoğru cevap: ${correct}\nTest bitti. İstersen başka test: “test: elektrik devreleri”`;
+    }
+    return `Doğru cevap (örnek): ${correct}\n\n${nextIdx+1}) ${t[nextIdx].q}`;
   }
-  if(type==="chat"){
-    chat.innerHTML="<div class='msg'>👋 Sohbete devam edelim.</div>";
+
+  // 7. sınıf konular listesi
+  if(text.includes("7. sınıf") && (text.includes("konu") || text.includes("konular"))){
+    let out = "📚 7. Sınıf Konular (özet)\n";
+    for(const [ders, list] of Object.entries(grade7)){
+      out += `\n• ${ders}\n  - ${list.join("\n  - ")}\n`;
+    }
+    out += `\nİstersen “Konu anlat: ...” yaz. Örn: “Konu anlat: Karışımlar”`;
+    return out;
+  }
+
+  // konu anlat
+  if(text.startsWith("konu anlat:")){
+    const topic = normalize(userText.split(":").slice(1).join(":")).trim();
+    if(!topic) return "Örnek: “Konu anlat: Karışımlar”";
+    const found = topicExplain[topic];
+    if(found) return `📌 Konu Anlatımı: ${topic.toUpperCase()}\n\n${found}`;
+    return `Bu konuda kısa anlatım hazır değil: “${topic}”.\nİstersen konunun adını daha net yaz veya “7. sınıf konular” de.`;
+  }
+
+  // basit matematik: bölme / çarpma / toplama / çıkarma (çok basit)
+  // örn: "12 bölü 3"
+  const bolu = text.match(/^(\d+)\s*(bölü|bolu|\/)\s*(\d+)$/);
+  if(bolu){
+    const a = Number(bolu[1]);
+    const b = Number(bolu[3]);
+    if(b === 0) return "0’a bölme tanımsızdır.";
+    return `${a} ÷ ${b} = ${a / b}`;
+  }
+
+  // Osmanlı padişah soruları (kaçıncı / kim)
+  if(text.includes("osmanlı") && (text.includes("padişah") || text.includes("padisah"))){
+    const numMatch = text.match(/(\d+)\.?/);
+    if(numMatch && text.includes("padişah") && (text.includes("kim") || text.includes("kimdir"))){
+      const n = Number(numMatch[1]);
+      const found = ottoman.find(x=>x.n===n);
+      if(found) return `Osmanlı'nın ${n}. padişahı: ${found.name}`;
+      return `Şu an listemde ilk ${ottoman.length} padişah var. İstersen ben listeyi büyüteyim.`;
+    }
+    if(text.includes("istanbul") && (text.includes("fetih") || text.includes("fethett") || text.includes("kim fethetti"))){
+      return "İstanbul’u 1453’te Fatih Sultan Mehmed fethetti.";
+    }
+  }
+
+  // Cumhuriyet
+  for(const r of republicFacts){
+    if(r.keys.some(k=>text.includes(k))) return r.answer(text);
+  }
+
+  // Günlük sorular
+  for(const d of dailyQA){
+    if(d.keys.some(k=>text.includes(k))) return d.answer(text);
+  }
+
+  // Fallback
+  return `Bunu daha iyi cevaplayabilmem için biraz daha net yazar mısın?\nÖrn:\n- “Konu anlat: Karışımlar”\n- “test: elektrik devreleri”\n- “Cumhuriyet ne zaman ilan edildi?”`;
+}
+
+/* ---------- UI / Menü ---------- */
+document.querySelectorAll(".pill").forEach(p=>{
+  p.addEventListener("click", ()=>{
+    document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
+    p.classList.add("active");
+    state.tab = p.dataset.tab;
+    applyTab();
+  });
+});
+
+function applyTab(){
+  if(state.tab==="chat"){
+    $modeBadge.textContent = "Mod: Sohbet";
+    $hintText.textContent = 'Örn: “Konu anlat: Karışımlar” • “test: elektrik devreleri” • “12 bölü 3”';
+    $subtitle.textContent = "Hızlı cevap • konu anlatımı • mini test";
+  } else if(state.tab==="ders"){
+    $modeBadge.textContent = "Mod: 7. Sınıf";
+    $hintText.textContent = 'Örn: “7. sınıf konular” • “Konu anlat: Karışımlar” • “test: karışımlar”';
+    $subtitle.textContent = "7. Sınıf destek • konu anlat • test";
+  } else if(state.tab==="tarih"){
+    $modeBadge.textContent = "Mod: Tarih";
+    $hintText.textContent = 'Örn: “Osmanlının 2. padişahı kim?” • “İstanbul’u kim fethetti?”';
+    $subtitle.textContent = "Tarih • Osmanlı • Cumhuriyet";
+  } else if(state.tab==="ayar"){
+    $modeBadge.textContent = "Mod: Ayar";
+    $hintText.textContent = 'Örn: “Benim adım ...” • “teşekkürler”';
+    $subtitle.textContent = "Kişisel ayarlar • isim hatırlama";
+    // ayar modunda küçük mesaj
+    addBotOnce("Ayarlar modu: İsmini kaydetmek için “Benim adım ...” yazabilirsin.");
   }
 }
 
+let __botOnce = new Set();
+function addBotOnce(key){
+  if(__botOnce.has(key)) return;
+  __botOnce.add(key);
+  addMsg("bot", key);
+}
+
+/* ---------- Gönderme ---------- */
 function send(){
-  const q=document.getElementById("q");
-  if(!q.value) return;
-  const chat=document.getElementById("chat");
-  chat.innerHTML+=`<div class="msg user">${q.value}</div>`;
+  const text = $input.value.trim();
+  if(!text) return;
+  $input.value="";
+  addMsg("user", text);
 
-  let cevap="Bunu araştırıyorum 🤔";
-  const s=q.value.toLowerCase();
-  if(s.includes("sağol")||s.includes("teşekkür"))
-    cevap="Rica ederim, her zaman yanındayım 💙";
-  if(s.includes("istanbul"))
-    cevap="İstanbul'u Fatih Sultan Mehmet fethetti.";
-  if(s.includes("12") && s.includes("3"))
-    cevap="12 ÷ 3 = 4";
-
+  showTyping();
   setTimeout(()=>{
-    chat.innerHTML+=`<div class="msg">${cevap}</div>`;
-    q.value="";
-  },600);
+    hideTyping();
+    const ans = answerFor(text);
+    addMsg("bot", ans);
+  }, 450);
 }
-</script>
 
+$sendBtn.addEventListener("click", send);
+$input.addEventListener("keydown", (e)=>{
+  if(e.key==="Enter" && !e.shiftKey){
+    e.preventDefault();
+    send();
+  }
+});
+
+/* ---------- Quick chips ---------- */
+quickPrompts.forEach(t=>{
+  const c = document.createElement("div");
+  c.className="chip";
+  c.textContent=t;
+  c.onclick=()=>{
+    $input.value=t;
+    $input.focus();
+  };
+  $quick.appendChild(c);
+});
+
+/* ---------- İlk mesaj ---------- */
+addMsg("bot",
+`Selam! Ben ZenoAI 🤝
+İstersen “Benim adım ...” yaz, adını hatırlayayım.
+Sorunu direkt yaz: fen / matematik / tarih / türkçe / din / ingilizce... elimden geldiğince cevaplarım.
+
+Örnek:
+- “7. sınıf konular”
+- “Konu anlat: Karışımlar”
+- “test: elektrik devreleri”
+- “12 bölü 3”`);
+applyTab();
+</script>
 </body>
 </html>
